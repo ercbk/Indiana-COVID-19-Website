@@ -1,9 +1,16 @@
 name: "Indiana COVID-19 Website"
+favicon: images/ind-state.png
 navbar:
   title: "About"
   left:
     - text: "Static Charts"
       href: static.html
+  right:
+    - icon: fa-twitter fa-lg
+      href: https://twitter.com/erc_bk
+    - icon: fa-github fa-lg
+      href: https://github.com/ercbk/Indiana-COVID-19-Tracker
+
 output_dir: "."
 output:
   html_document:
