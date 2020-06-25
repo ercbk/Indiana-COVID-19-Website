@@ -1,5 +1,4 @@
 name: "Indiana COVID-19 Website"
-favicon: images/ind-state-fav.png
 navbar:
   title: "About"
   left:
@@ -16,5 +15,7 @@ output:
   html_document:
     theme: yeti
     highlight: textmate
+    includes:
+      in_header: header.html
 #    include:
 #      after_body: _footer.html
