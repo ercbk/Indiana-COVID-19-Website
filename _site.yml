@@ -1,5 +1,5 @@
 name: "Indiana COVID-19 Website"
-favicon: images/ind-state.png
+favicon: images/ind-state-fav.png
 navbar:
   title: "About"
   left:
