@@ -1,7 +1,9 @@
 name: "Indiana COVID-19 Website"
 navbar:
-  title: "About"
+  title: "Indiana COVID-19 Tracker"
   left:
+    - text: "About"
+      href: index.html
     - text: "Static Charts"
       href: static.html
   right:
