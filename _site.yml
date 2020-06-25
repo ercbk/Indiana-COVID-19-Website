@@ -1,15 +1,9 @@
-name: "R Markdown Websites Tutorial"
+name: "Indiana COVID-19 Website"
 navbar:
-  title: "HOME"
+  title: "About"
   left:
-    - text: "First Observations"
-      href: first_observations.html
-    - text: "Basic Workflow"
-      href: basic_workflow.html
-    - text: "Getting Sophisticated"
-      href: getting_sophisticated.html
-    - text: "Your Turn"
-      href: your_turn.html
+    - text: "Static Charts"
+      href: static.html
 output_dir: "."
 output:
   html_document:
