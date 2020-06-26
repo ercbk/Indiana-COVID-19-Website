@@ -3,6 +3,8 @@ name: Evening Update
 on:
   repository_dispatch:
     types: [evening-update]
+  schedule:
+    cron: '35 15 * * *'
 
 jobs:
   update:
