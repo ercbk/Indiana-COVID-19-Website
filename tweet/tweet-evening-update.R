@@ -1,7 +1,7 @@
 # Post tweets with updated charts
 
 
-# necessary for github actions
+# necessary for github actions runner
 token_stuff_e <- Sys.getenv(c("APPNAMEE", "APIKEYE", "APISECRETE", "ACCESSTOKENE", "ACCESSSECRETE"))
 
 
@@ -29,7 +29,7 @@ suppressPackageStartupMessages(suppressWarnings(library(dplyr)))
 
 
 # get plot paths, names, and dates
-png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/tracker/plots"))) %>% 
+png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
    mutate(
       chart = stringr::str_extract(paths,
                                    pattern = "[a-z]*-[a-z]*-[a-z]*"),
@@ -53,10 +53,10 @@ pngs <- png_files %>%
 
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis at
-                  https://github.com/ercbk/Indiana-COVID-19-Tracker #rstats")
+                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis at
-                  https://github.com/ercbk/Indiana-COVID-19-Tracker")
+                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
 
 
 

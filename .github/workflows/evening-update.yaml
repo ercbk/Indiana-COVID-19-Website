@@ -3,8 +3,6 @@ name: Evening Update
 on:
   repository_dispatch:
     types: [evening-update]
-  schedule:
-    - cron: '35 16 * * *'
 
 jobs:
   update:
@@ -23,7 +21,7 @@ jobs:
       ACCESSTOKENF: ${{ secrets.ACCESSTOKENF }}
       ACCESSSECRETF: ${{ secrets.ACCESSSECRETF }}
     steps:
-      # must checkout out of own repo to use "action" in someone elses  
+      # copy repo and submodules; need token with repo scope  
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
@@ -58,6 +56,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
+          # GITHUB_TOKEN automatically created
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      #- name: Tweet evening update
-        #run: Rscript "tweet/tweet-evening-update.R"
+      - name: Tweet evening update
+        run: Rscript "tweet/tweet-evening-update.R"

@@ -21,11 +21,11 @@ jobs:
       ACCESSTOKENF: ${{ secrets.ACCESSTOKENF }}
       ACCESSSECRETF: ${{ secrets.ACCESSSECRETF }}
     steps:
-      # must checkout out of own repo to use "action" in someone elses  
+      # copy repo and submodules; need token with repo scope
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          submodules: recursive
+          submodules: true
       # installs r
       - uses: r-lib/actions/setup-r@v1
         with:
@@ -44,7 +44,7 @@ jobs:
         run: Rscript -e 'renv::restore(repos = c(CRAN = "https://cloud.r-project.org"))'
       - name: Update tracker submodule
         run: |
-          
+          git submodule update --remote
       - name: rebuild website
         run: Rscript -e "rmarkdown::render_site()"
       - name: Commit files
@@ -55,7 +55,8 @@ jobs:
           git commit -m "6:30pm charts update" || echo "No changes to commit"
       - name: Push changes
         uses: ad-m/github-push-action@master
+        # GITHUB_TOKEN is automatically created
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      #- name: Tweet noon update
-        #run: Rscript "tweet/tweet-noon-update.R"
+      - name: Tweet noon update
+        run: Rscript "tweet/tweet-noon-update.R"

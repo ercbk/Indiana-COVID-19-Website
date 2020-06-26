@@ -37,7 +37,7 @@ tweet_id <- rtweet::get_timeline("StateHealthIN",
       pull(status_id)
 
 # get plot paths, names, and dates
-png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/tracker/plots"))) %>% 
+png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
       mutate(
             chart = stringr::str_extract(paths,
                                          pattern = "[a-z]*-[a-z]*-[a-z]*"),
@@ -57,15 +57,15 @@ pngs <- png_files %>%
       slice(lineup) %>% 
       pull(paths)
 
-
+# need "@<account>" to post on a reply thread
 msg <- glue::glue("@StateHealthIN More charts and analysis at
-                  https://github.com/ercbk/Indiana-COVID-19-Tracker")
+                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis at
-                  https://github.com/ercbk/Indiana-COVID-19-Tracker #rstats")
+                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis at
-                  https://github.com/ercbk/Indiana-COVID-19-Tracker")
+                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
 
 
 rtweet::post_tweet(msg,
