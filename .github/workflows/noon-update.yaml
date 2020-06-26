@@ -1,7 +1,6 @@
 name: Noon Update
 
 on:
-  on:
   repository_dispatch:
     types: [noon-update]
 

@@ -1,7 +1,6 @@
 name: Evening Update
 
 on:
-  on:
   repository_dispatch:
     types: [evening-update]
 
