@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo=FALSE, out.width="100%", out.height="100%")
 library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
 
 # get plot paths, names, and dates
-png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/tracker/plots"))) %>% 
+png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
       mutate(
             chart = stringr::str_extract(paths,
                                          pattern = "[a-z]*-[a-z]*-[a-z]*"),
@@ -53,7 +53,7 @@ Changelog located in [NEWS.md](https://github.com/ercbk/Indiana-COVID-19-Tracker
 
 ## **Cumulative Cases and Cumulative Deaths ** 
 ```{r}
-ind_line_path <- glue::glue("tracker/plots/ind-combo-line-{ind_combo_date}.png")
+ind_line_path <- glue::glue("Indiana-COVID-19-Tracker/plots/ind-combo-line-{ind_combo_date}.png")
 knitr::include_graphics(ind_line_path)
 ``` 
 
@@ -66,7 +66,7 @@ knitr::include_graphics(ind_line_path)
 
 ## **Daily Positive Cases vs Cumulative Cases**  
 ```{r ,align="center"}
-pos_policy_path <- glue::glue("tracker/plots/pos-policy-line-{pos_policy_date}.png")
+pos_policy_path <- glue::glue("Indiana-COVID-19-Tracker/plots/pos-policy-line-{pos_policy_date}.png")
 knitr::include_graphics(pos_policy_path)
 ```
   
@@ -79,7 +79,7 @@ knitr::include_graphics(pos_policy_path)
 
 ## **Hospitalizations, ICU Beds and Ventilator Availability**  
 ```{r}
-hosp_iv_path <- glue::glue("tracker/plots/hosp-icu-vent-{hosp_iv_date}.png")
+hosp_iv_path <- glue::glue("Indiana-COVID-19-Tracker/plots/hosp-icu-vent-{hosp_iv_date}.png")
 knitr::include_graphics(hosp_iv_path)
 ```
 
@@ -93,7 +93,7 @@ knitr::include_graphics(hosp_iv_path)
 
 ## **Daily Positive Test Rate ** 
 ```{r}
-pos_rate_path <- glue::glue("tracker/plots/pos-rate-line-{pos_rate_date}.png")
+pos_rate_path <- glue::glue("Indiana-COVID-19-Tracker/plots/pos-rate-line-{pos_rate_date}.png")
 knitr::include_graphics(pos_rate_path)
 ```
 
@@ -109,7 +109,7 @@ knitr::include_graphics(pos_rate_path)
 
 ## **OpenTable Year-Over-Year Seated Diners **  
 ```{r}
-ot_rest_path <- glue::glue("tracker/plots/ot-rest-line-{ot_rest_date}.png")
+ot_rest_path <- glue::glue("Indiana-COVID-19-Tracker/plots/ot-rest-line-{ot_rest_date}.png")
 knitr::include_graphics(ot_rest_path)
 ```
 
@@ -123,7 +123,7 @@ knitr::include_graphics(ot_rest_path)
 
 ## **Google Maps Mobility Indices**  
 ```{r}
-goog_mob_path <- glue::glue("tracker/plots/goog-mob-line-{goog_mob_date}.png")
+goog_mob_path <- glue::glue("Indiana-COVID-19-Tracker/plots/goog-mob-line-{goog_mob_date}.png")
 knitr::include_graphics(goog_mob_path)
 ```
 
@@ -142,12 +142,12 @@ week period Jan 3–Feb 6, 2020.
 
 ## **Regional Cumulative Deaths and Cumulative Positive Cases**  
 ```{r, align="center"}
-region_dea_path <- glue::glue("tracker/plots/region-dea-line-{region_dea_date}.png")
+region_dea_path <- glue::glue("Indiana-COVID-19-Tracker/plots/region-dea-line-{region_dea_date}.png")
 knitr::include_graphics(region_dea_path)
 ```
 
 ```{r, align="center"}
-region_pos_path <- glue::glue("tracker/plots/region-pos-line-{region_pos_date}.png")
+region_pos_path <- glue::glue("Indiana-COVID-19-Tracker/plots/region-pos-line-{region_pos_date}.png")
 knitr::include_graphics(region_pos_path)
 ```
 
@@ -161,7 +161,7 @@ knitr::include_graphics(region_pos_path)
 
 ## **Estimated Change in County Postive Cases ** 
 ```{r, align="center"}
-county_pos_path <- glue::glue("tracker/plots/county-pos-bar-{county_pos_date}.png")
+county_pos_path <- glue::glue("Indiana-COVID-19-Tracker/plots/county-pos-bar-{county_pos_date}.png")
 knitr::include_graphics(county_pos_path)
 ```
 
@@ -173,7 +173,7 @@ knitr::include_graphics(county_pos_path)
 
 ## **Effective Reproductive Number**    
 ```{r}
-daily_re_path <- glue::glue("tracker/plots/daily-re-line-{daily_re_date}.png")
+daily_re_path <- glue::glue("Indiana-COVID-19-Tracker/plots/daily-re-line-{daily_re_date}.png")
 knitr::include_graphics(daily_re_path)
 ``` 
 
@@ -187,7 +187,7 @@ knitr::include_graphics(daily_re_path)
 
 ## **Excess Deaths**  
 ```{r}
-exc_death_path <- glue::glue("tracker/plots/excess-death-col-{exc_death_date}.png")
+exc_death_path <- glue::glue("Indiana-COVID-19-Tracker/plots/excess-death-col-{exc_death_date}.png")
 knitr::include_graphics(exc_death_path)
 ``` 
 

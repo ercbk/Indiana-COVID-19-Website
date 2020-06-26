@@ -24,6 +24,7 @@ jobs:
       # must checkout out of own repo to use "action" in someone elses  
       - uses: actions/checkout@v2
         with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
           submodules: recursive
       # installs r
       - uses: r-lib/actions/setup-r@v1
