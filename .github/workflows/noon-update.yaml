@@ -43,7 +43,7 @@ jobs:
         run: |
           git submodule update --remote
       - name: rebuild website
-        run: Rscript -e "rmarkdown::render_site(encoding = 'UTF-8')"
+        run: Rscript -e "rmarkdown::render_site()"
       - name: Commit files
         run: |
           git config --local user.email "action@github.com"
