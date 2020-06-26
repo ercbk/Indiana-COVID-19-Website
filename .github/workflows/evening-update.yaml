@@ -4,7 +4,7 @@ on:
   repository_dispatch:
     types: [evening-update]
   schedule:
-    - cron: '37 23 * * *'
+    - cron: '04 0 * * *'
 
 jobs:
   update:
@@ -55,7 +55,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "6:30pm charts update" || echo "No changes to commit"
-          git config pull.ff only
+          git config pull.rebase true
           git pull
       - name: Push changes
         uses: ad-m/github-push-action@master
