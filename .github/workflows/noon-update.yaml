@@ -8,6 +8,7 @@ jobs:
   update:
     name: Update IN COVID Tracker Website
     runs-on: [ubuntu-latest]
+    
     # env vars for rtweet; 1 old one just to pull tweets; 2 others to tweet from accts
     env:
       APPNAMEE: ${{ secrets.APPNAMEE }}
@@ -20,44 +21,70 @@ jobs:
       APISECRETF: ${{ secrets.APISECRETF }}
       ACCESSTOKENF: ${{ secrets.ACCESSTOKENF }}
       ACCESSSECRETF: ${{ secrets.ACCESSSECRETF }}
+    
     steps:
+      
       # copy repo and submodules; need token with repo scope
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           submodules: true
+      
       # installs r
       - uses: r-lib/actions/setup-r@v1
         with:
           r-version: '3.6.2'
+      
       # need libcurl to install RCurl pkg on Linux
       - name: Install libcurl
         run: sudo apt-get install libcurl4-openssl-dev
+      
       # installs pandoc for rmarkdown
       - uses: r-lib/actions/setup-pandoc@v1
+      
       # needed for units package (might be needed for one of the time pkgs)
       - name: Install udunits2
         run: sudo apt-get install libudunits2-dev
-      - name: Install renv
-        run: Rscript -e "install.packages('https://cran.r-project.org/src/contrib/renv_0.10.0.tar.gz', repos = NULL, type = 'source')"
-      - name: copy dev environment to runner
-        run: Rscript -e 'renv::restore(repos = c(CRAN = "https://cloud.r-project.org"))'
+      
+      #- name: Install renv
+        #run: Rscript -e "install.packages('https://cran.r-project.org/src/contrib/renv_0.10.0.tar.gz', repos = NULL, type = 'source')"
+      #- name: copy dev environment to runner
+        #run: Rscript -e 'renv::restore(repos = c(CRAN = "https://cloud.r-project.org"))'
+      
+      - name: Cache packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+      
+      - name: Restore packages
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+          renv::restore()
+      
       - name: Update tracker submodule
         run: |
           git submodule update --remote
+      
       - name: rebuild website
         run: Rscript -e "rmarkdown::render_site()"
+      
       - name: Commit files
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "6:30pm charts update" || echo "No changes to commit"
+      
       - name: Push changes
         uses: ad-m/github-push-action@master
         # GITHUB_TOKEN is automatically created
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'gh-pages'
+      
       - name: Tweet noon update
         run: Rscript "tweet/tweet-noon-update.R"
