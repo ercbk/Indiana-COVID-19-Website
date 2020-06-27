@@ -58,5 +58,6 @@ jobs:
         # GITHUB_TOKEN is automatically created
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: 'gh-pages'
       - name: Tweet noon update
         run: Rscript "tweet/tweet-noon-update.R"
