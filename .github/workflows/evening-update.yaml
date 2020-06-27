@@ -4,7 +4,7 @@ on:
   repository_dispatch:
     types: [evening-update]
   schedule:
-    - cron: '04 0 * * *'
+    - cron: '19 00 * * *'
 
 jobs:
   update:
