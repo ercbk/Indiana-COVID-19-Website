@@ -48,11 +48,7 @@ jobs:
       - name: Install udunits2
         run: sudo apt-get install libudunits2-dev
       
-      #- name: Install renv
-        #run: Rscript -e "install.packages('https://cran.r-project.org/src/contrib/renv_0.10.0.tar.gz', repos = NULL, type = 'source')"
-      #- name: copy dev environment to runner
-        #run: Rscript -e 'renv::restore(repos = c(CRAN = "https://cloud.r-project.org"))'
-      
+      # cache dev environment, restore environment from cache
       - name: Cache packages
         uses: actions/cache@v2
         with:
@@ -60,7 +56,7 @@ jobs:
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
-      
+
       - name: Restore packages
         shell: Rscript {0}
         run: |
