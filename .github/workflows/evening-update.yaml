@@ -8,10 +8,11 @@ on:
 jobs:
   update:
     name: Update IN COVID Tracker Website
-    runs-on: [ubuntu-latest]
-    # env vars for rtweet; 1 old one just to pull tweets; 2 others to tweet from accts
+    #runs-on: [ubuntu-latest]
+    runs-on: ubuntu-18.04
     
-    env:
+    
+    # env vars for rtweet; 1 old one just to pull tweets; 2 others to tweet from accts    env:
       APPNAMEE: ${{ secrets.APPNAMEE }}
       APIKEYE: ${{ secrets.APIKEYE }}
       APISECRETE: ${{ secrets.APISECRETE }}
