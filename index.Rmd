@@ -2,7 +2,7 @@
 author:  "[Eric Book](https://github.com/ercbk)"
 output:
   html_document:
-    css: style.css
+    css: index-style.css
 ---
 
 ----
