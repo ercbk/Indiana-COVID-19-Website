@@ -160,7 +160,7 @@ knitr::include_graphics(region_pos_path)
 \
 \
 
-## **Estimated Change in County Postive Cases ** 
+## **Estimated Change in County Positive Cases ** 
 ```{r, align="center"}
 county_pos_path <- glue::glue("Indiana-COVID-19-Tracker/plots/county-pos-bar-{county_pos_date}.png")
 knitr::include_graphics(county_pos_path)
