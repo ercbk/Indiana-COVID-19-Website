@@ -6,6 +6,8 @@ navbar:
       href: index.html
     - text: "Static Charts"
       href: static.html
+    - text: "COVIDcast Dashboard"
+      href: https://ercbk.github.io/Indiana-COVIDcast-Dashboard/#dashboard
   right:
     - icon: fa-twitter fa-lg
       href: https://twitter.com/erc_bk
