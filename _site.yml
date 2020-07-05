@@ -3,10 +3,13 @@ navbar:
   title: "Indiana COVID-19 Tracker"
   left:
     - text: "About"
+      icon: fa-question-circle
       href: index.html
     - text: "Static Charts"
+      icon: fa-images
       href: static.html
     - text: "COVIDcast Dashboard"
+      icon: glyphicon-stats
       href: https://ercbk.github.io/Indiana-COVIDcast-Dashboard/#dashboard
   right:
     - icon: fa-twitter fa-lg
