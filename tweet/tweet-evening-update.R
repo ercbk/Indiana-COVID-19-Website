@@ -55,12 +55,12 @@ pngs <- png_files %>%
 
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis
-                  Static charts: https://bit.ly/2Cdq33q
-                    COVIDcast dashboard: https://bit.ly/2VSOM44 #rstats")
+                  Static Charts: https://bit.ly/2Cdq33q
+                    COVIDcast Dashboard: https://bit.ly/2VSOM44 #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis 
-                  Static charts: https://bit.ly/2Cdq33q
-                    COVIDcast dashboard: https://bit.ly/2VSOM44")
+                  Static Charts: https://bit.ly/2Cdq33q
+                    COVIDcast Dashboard: https://bit.ly/2VSOM44")
 
 
 
