@@ -27,9 +27,11 @@ rt_tok_f <- rtweet::create_token(
 
 suppressPackageStartupMessages(suppressWarnings(library(dplyr)))
 
+dash_img_paths <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVIDcast-Dashboard/images/dashboard")))
 
 # get plot paths, names, and dates
 png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
+   bind_rows(dash_img_paths) %>% 
    mutate(
       chart = stringr::str_extract(paths,
                                    pattern = "[a-z]*-[a-z]*-[a-z]*"),
@@ -42,7 +44,7 @@ png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstu
    ungroup()
 
 
-random_pic <- sample(c(1,2,3,4,6,7,9,10), size = 1)
+random_pic <- sample(c(1,2,3,4,6,7,9,10,11,12), size = 1)
 fixed_pics <- c(5, 8)
 lineup <- c(fixed_pics, random_pic)
 
@@ -52,11 +54,13 @@ pngs <- png_files %>%
 
 
 
-msg_e <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis at
-                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html #rstats")
+msg_e <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis
+                  Static charts: https://bit.ly/2Cdq33q
+                    COVIDcast dashboard: https://bit.ly/2VSOM44 #rstats")
 
-msg_f <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis at
-                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
+msg_f <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis 
+                  Static charts: https://bit.ly/2Cdq33q
+                    COVIDcast dashboard: https://bit.ly/2VSOM44")
 
 
 

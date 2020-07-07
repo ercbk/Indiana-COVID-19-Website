@@ -1,3 +1,6 @@
 [submodule "Indiana-COVID-19-Tracker"]
 	path = Indiana-COVID-19-Tracker
 	url = https://github.com/ercbk/Indiana-COVID-19-Tracker
+[submodule "Indiana-COVIDcast-Dashboard"]
+	path = Indiana-COVIDcast-Dashboard
+	url = https://github.com/ercbk/Indiana-COVIDcast-Dashboard

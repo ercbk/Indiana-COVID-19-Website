@@ -28,55 +28,61 @@ suppressPackageStartupMessages(suppressWarnings(library(dplyr)))
 tweet_id <- rtweet::get_timeline("StateHealthIN",
                                  n = 150,
                                  token = rt_tok_e) %>% 
-      tidyr::separate(col = "created_at", into = c("date", "time"), sep = " ") %>% 
-      mutate(date = lubridate::as_date(date),
-             time = hms::as_hms(time)) %>%
-      select(date, status_id, text) %>% 
-      filter(stringr::str_detect(text, pattern = "latest #COVID19 case information") | stringr::str_detect(text, pattern = "positive cases")) %>% 
-      filter(date == lubridate::today()) %>% 
-      pull(status_id)
+   tidyr::separate(col = "created_at", into = c("date", "time"), sep = " ") %>% 
+   mutate(date = lubridate::as_date(date),
+          time = hms::as_hms(time)) %>%
+   select(date, status_id, text) %>% 
+   filter(stringr::str_detect(text, pattern = "latest #COVID19 case information") | stringr::str_detect(text, pattern = "positive cases")) %>% 
+   filter(date == lubridate::today()) %>% 
+   pull(status_id)
+
+dash_img_paths <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVIDcast-Dashboard/images/dashboard")))
 
 # get plot paths, names, and dates
 png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
-      mutate(
-            chart = stringr::str_extract(paths,
-                                         pattern = "[a-z]*-[a-z]*-[a-z]*"),
-            date = stringr::str_extract(paths,
-                                        pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}") %>%
-                  as.Date()
-            ) %>%
-      group_by(chart) %>% 
-      filter(date == max(date)) %>% 
-      ungroup()
+   bind_rows(dash_img_paths) %>%
+   mutate(
+      chart = stringr::str_extract(paths,
+                                   pattern = "[a-z]*-[a-z]*-[a-z]*"),
+      date = stringr::str_extract(paths,
+                                  pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}") %>%
+         as.Date()
+   ) %>%
+   group_by(chart) %>% 
+   filter(date == max(date)) %>% 
+   ungroup()
 
-random_pic <- sample(c(1,2,3,4,6,7,9,10), size = 1)
+random_pic <- sample(c(1,2,3,4,6,7,9,10,11,12), size = 1)
 fixed_pics <- c(5, 8)
 lineup <- c(fixed_pics, random_pic)
 
 pngs <- png_files %>%
-      slice(lineup) %>% 
-      pull(paths)
+   slice(lineup) %>% 
+   pull(paths)
 
 # need "@<account>" to post on a reply thread
 msg <- glue::glue("@StateHealthIN More charts and analysis at
-                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
+                  Static charts: https://bit.ly/2Cdq33q
+                    COVIDcast: https://bit.ly/2VSOM44")
 
-msg_e <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis at
-                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html #rstats")
+msg_e <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis
+                  Static charts: https://bit.ly/2Cdq33q
+                    COVIDcast dashboard: https://bit.ly/2VSOM44 #rstats")
 
-msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis at
-                  https://ercbk.github.io/Indiana-COVID-19-Website/static.html")
+msg_f <- glue::glue("Indiana COVID-19 Tracker evening update. More charts and analysis 
+                  Static charts: https://bit.ly/2Cdq33q
+                    COVIDcast dashboard: https://bit.ly/2VSOM44")
 
 
 rtweet::post_tweet(msg,
-           in_reply_to_status_id = tweet_id,
-           media = pngs,
-           token = rt_tok_e)
+                   in_reply_to_status_id = tweet_id,
+                   media = pngs,
+                   token = rt_tok_e)
 
 rtweet::post_tweet(msg_e,
-           media = pngs,
-           token = rt_tok_e)
+                   media = pngs,
+                   token = rt_tok_e)
 
 rtweet::post_tweet(msg_f,
-           media = pngs,
-           token = rt_tok_f)
+                   media = pngs,
+                   token = rt_tok_f)
