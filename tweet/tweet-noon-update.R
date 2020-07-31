@@ -27,7 +27,8 @@ suppressPackageStartupMessages(suppressWarnings(library(dplyr)))
 
 tweet_id <- rtweet::get_timeline("StateHealthIN",
                                  n = 150,
-                                 token = rt_tok_e) %>% 
+                                 token = rt_tok_e
+                                 ) %>% 
    tidyr::separate(col = "created_at", into = c("date", "time"), sep = " ") %>% 
    mutate(date = lubridate::as_date(date),
           time = hms::as_hms(time)) %>%
@@ -75,10 +76,12 @@ msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analy
                   COVIDcast Dashboard: https://bit.ly/2VSOM44")
 
 
-rtweet::post_tweet(msg,
-                   in_reply_to_status_id = tweet_id,
-                   media = pngs,
-                   token = rt_tok_e)
+if (length(tweet_id) != 0) {
+   rtweet::post_tweet(msg,
+                      in_reply_to_status_id = tweet_id,
+                      media = pngs,
+                      token = rt_tok_e)
+}
 
 rtweet::post_tweet(msg_e,
                    media = pngs,
