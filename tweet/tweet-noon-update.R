@@ -64,8 +64,7 @@ pngs <- png_files %>%
 # need "@<account>" to post on a reply thread
 msg <- glue::glue("@StateHealthIN More charts and analysis at
                   Static Charts: https://bit.ly/2Cdq33q
-                  COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  ICYMI added a table for cases per 100K & positivity rates to the dashboard. Details on About page.")
+                  COVIDcast Dashboard: https://bit.ly/2VSOM44")
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis
                   Static Charts: https://bit.ly/2Cdq33q
