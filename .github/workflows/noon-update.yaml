@@ -3,6 +3,8 @@ name: Noon Update
 on:
   repository_dispatch:
     types: [noon-update]
+  schedule:
+    - cron: '55 14 * * *'
 
 jobs:
   update:
