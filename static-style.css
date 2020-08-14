@@ -3,10 +3,10 @@
 
 
 
-  /*------------- Whole Document---------------- */
+/*------------- Whole Document---------------- */
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Libre Baskerville', serif;
     font-size: 19px;
 }
 
@@ -19,7 +19,7 @@ body {
 
 .section h1,
 .section h2 {
-  font-family: 'Libre Baskerville', serif;
+  font-family: 'Roboto', sans-serif;
   padding-top: 3em !important; /*adding so much padding because theme adds a margin-top: -65px by default */
   margin-bottom: 0.75em;
 }, 

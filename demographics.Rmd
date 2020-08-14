@@ -1,0 +1,594 @@
+---
+output: 
+   html_document:
+      css: demographics-style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
+
+pacman::p_load(extrafont, dplyr, glue, viridisLite, highcharter, ggplot2, ggiraph, patchwork)
+
+deep_rooted <- swatches::read_palette(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/palettes/Deep Rooted.ase"))
+
+med_age_tbl <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/median-age-bubble.rds"))
+heat_dat <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/age-cases-heat.rds"))
+ind_age_clean <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/age-death-line.rds"))
+
+
+line_data_date <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/age-death-line-data-date.rds"))
+heat_bubble_data_date <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/heat-bubble-data-date.rds"))
+
+```
+
+## Median Age of Weekly COVID-19 Cases, Weekly Tests and Deaths
+
+```{r age_bubble, echo=FALSE}
+
+
+# tooltip function
+fntltp <- JS("function(){
+  return '<b>' + this.series.xAxis.categories[this.point.x] + '</b>' + '<br>' +
+  'Median Age' +  ':  ' +  Highcharts.numberFormat(this.point.median_age, 1) + '<br>' +
+  'Deaths' + ': ' + this.point.weekly_deaths + '<br>' +
+  'Tests' + ': ' + this.point.weekly_tests.toLocaleString(undefined, {maximumFractionDigits: 0});
+}")
+
+data_date_text <- glue("Data Date: {heat_bubble_data_date}")
+
+# specifications for data date text
+plotline_datadate <- list(
+   # position determined by number of bars or bubbles along x axis
+   value = length(unique(med_age_tbl$end_date))-1,
+   # just want text and not line
+   width = 0,
+   label = list(
+      text = data_date_text,
+      verticalAlign = "top",
+      style = list(color = "white"),
+      # neg y value, in pixels, moves text up
+      textAlign = "right",
+      y = -90,
+      rotation = 0
+   )
+)
+
+# merges/overrides parts of tuft2 theme with my theme elements
+theme_med_age <- hc_theme_merge(
+   hc_theme_tufte2(),
+   hc_theme(
+      chart = list(
+         backgroundColor = "black"
+      ),
+      title = list(
+         align = "left",
+         style = list(
+            color = "white",
+            fontSize = "18px"
+         )
+      ),
+      subtitle = list(
+         align = "left",
+         style = list(
+            color = "white",
+            fontSize = "14px"
+         )
+      ),
+      caption = list(
+         align = "left",
+         style = list(
+            color = "white"
+         )
+      ),
+      xAxis = list(
+         labels = list(
+            style = list(color = "white",
+                         fontSize = "14px")
+         ),
+         title = list(
+            text = "Week ending date",
+            style = list(color = "white",
+                         fontSize = "16px")
+         ),
+         tickInterval = 2
+      ),
+      yAxis = list(
+         labels = list(
+            style = list(color = "white",
+                         fontSize = "14px")
+         ),
+         tickLength = 0,
+         gridLineWidth = 0
+      ),
+      legend = list(
+         layout = "horizontal",
+         align = "center",
+         verticalAlign = "top",
+         itemStyle = list(color = "white")
+      )
+   )
+)
+
+# using 2 y-axes; opposite = TRUE places y-axis on right (or top if x-axis)
+med_age_axis = list(
+   title = list(
+      text = "Median Age",
+      style = list(color = "white")
+   ),
+   opposite = FALSE
+)
+tests_axis = list(
+   title = list(
+      text = "Tests",
+      style = list(color = "white")
+   ),
+   opposite = TRUE
+)
+
+annot_y <- med_age_tbl %>% 
+   filter(end_date == "Aug 11") %>% 
+   pull(median_age)
+
+
+# highchart() creates htmlwidget
+age_bubble <- highchart() %>% 
+   # creates 2 y-axes on the same level (i.e. 1 chart, 2 axes)
+   hc_yAxis_multiples(
+      med_age_axis,
+      tests_axis
+   ) %>%
+   # theres "datetime" for type arg but doesn't work with just dates so need categories
+   # plotLine adds a vertical line and text normally, only used text to add data date
+   hc_xAxis(categories = levels(med_age_tbl$end_date),
+            plotLines = list(plotline_datadate)) %>%
+   
+   # phantom series, so I can get square legend symbols instead of circles
+   hc_add_series(name = 'Median Age', type = "scatter", color = "#99875c",
+                 id = 'legend_median', marker = list(symbol = "square")) %>% 
+   hc_add_series(name = 'Tests', type = "scatter", color = "#755c99",
+                 id = 'legend_tests', marker = list(symbol = "square")) %>% 
+   
+   # Bubble with median age and size = deaths
+   hc_add_series(name = 'Median Age', data = med_age_tbl, type = "bubble",
+                 # z var determins bubble size, value needed when multiple numerics in dataset (I think)
+                 hcaes(x = end_date, y = median_age, z = weekly_deaths, value = median_age),
+                 # maxSize = general param for bubble sizes
+                 zMax = 500, maxSize = "18%", marker = list(fillColor = '#99875c'),
+                 # yAxis is the axis id, zIndex determines which series layer is outermost (larger = more outer)
+                 yAxis = 0, zIndex = 0, tooltip = list(stickOnContact = FALSE),
+                 # states has various js-like effects type features
+                 # turned off effect of series being highlighted on hover
+                 states = list(inactive = list(enabled = FALSE)), opacity = 0.95,
+                 # turned legend of this series off since using legend of phantom series
+                 # linkedTo makes it so this series is affected by selection of phantom series in the legend
+                 showInLegend = FALSE, linkedTo = 'legend_median') %>% 
+   
+   # column chart for weekly tests
+   # pretty much same settings as bubble chart
+   hc_add_series(name = 'Tests', data = med_age_tbl, type = "column",
+                 # Using shared tooltip and only wnated bubble series to show it
+                 hcaes(x = end_date, y = weekly_tests, value = median_age, tooltip = FALSE),
+                 # border params are for stroke around bars
+                 yAxis = 1, zIndex = 0, color = '#755c99', borderColor = '#99875c',
+                 borderRadius = 2, borderWidth = 2, opacity = 0.75,
+                 states = list(inactive = list(enabled = FALSE),
+                               hover = list(enabled = FALSE)),
+                 showInLegend = FALSE, linkedTo = 'legend_tests') %>%
+   hc_annotations(
+      list(
+         # x is the bar number, "Aug 08" doesn't work
+         # xAxis must be specified else x is in pixels
+         labels = list(
+            list(
+               point = list(x = 22, y = annot_y + 1, xAxis = 0, yAxis = 0),
+               text = "<b>School Starts</b>",
+               style = list(color = "black"),
+               backgroundColor = "white"
+            )
+         )
+      )
+   ) %>%  
+   hc_tooltip(formatter = fntltp, shared = TRUE) %>%
+   hc_legend(bubbleLegend = list(enabled = TRUE,
+                                 color = "#99875c",
+                                 # min and max size of circles in legend
+                                 # too small a spread between minSize, maxSize can crowd-out 2nd bubble label
+                                 minSize = 25,
+                                 maxSize = 69,
+                                 labels = list(style = list(color = "white",
+                                                            fontSize = 12),
+                                               # integer format
+                                               format = '{value:.0f} deaths'),
+                                 ranges = list(
+                                    list(value = 500),
+                                    list(value = 250),
+                                    list(value = 100)))) %>% 
+   # hc_title(text = "Median Age of Weekly COVID-19 Cases") %>% 
+   hc_caption(text = "Source: Indiana Data Hub") %>% 
+   hc_add_theme(theme_med_age)
+
+htmlwidgets::saveWidget(age_bubble, file = glue("{rprojroot::find_rstudio_root_file()}/images/demographics/age-bubble.html"))
+
+
+age_bubble
+
+```
+
+This chart shows the median age (left y-axis) of COVID-19 cases for a particular week as bubbles and the number of tests (right y-axis) for a particular week as columns. The number of deaths for that week is represented by the size of the bubble.  
+
+  * The median age of cases decreases as testing increases. Testing facilities expand outside of hospitals and into communities where a greater number of younger people get tested.  
+  * If testing remains *high*, relatively *constant*, and the median age is *younger*, then *fewer or similar* numbers of deaths are expected.  
+  * If testing remains *high*, relatively *constant*, and the median age *rises*, then deaths are expected to *increase*.  
+  * If testing is substantially *reduced or inconsistent* and the median age *rises*, then the behavior of the amount of deaths is more *uncertain*. The rise might be due to a lack of testing or may indicate viral spread from younger people to older ones.  
+
+Hovering over the bubbles shows the final date of the weekly interval, the median age, number of deaths, and number of tests for that week. The bar series or bubble series can selected by clicking on the opposite series in the legend.  
+\
+\
+\
+
+## Weekly COVID-19 Cases by Age  
+
+
+```{r age_heat, echo=FALSE}
+
+
+caption_text <- "Sources: Indiana Data Hub, U.S. Census Bureau"
+
+# specifications for data date text
+plotline_datadate <- list(
+   # position determined by number of cells along x axis
+   value = length(unique(heat_dat$end_date))-1, width = 2,
+   label = list(
+      text = data_date_text,
+      verticalAlign = "top",
+      style = list(color = "white"),
+      # neg y value, in pixels, moves text up
+      textAlign = "right",
+      y = -110,
+      rotation = 0
+   )
+)
+
+# specifications for "school_starts" annotation
+plotline_school_cases <- list(
+   color = "#fde725", value = 22, width = 2, zIndex = 5,
+   label = list(
+      text = "School Starts",
+      verticalAlign = "top",
+      style = list(color = "#fde725",
+                   fontSize = "14px"),
+      textAlign = "right",
+      rotation = 0,
+      y = -50
+   )
+)
+
+# only need the line for the bottom heatmap
+plotline_school_cap <- list(
+   color = "#fde725", value = 22, width = 2, zIndex = 5
+)
+
+# tooltip functions: date and age group: cases or prop cases
+# number format
+fntltp_capita <- JS("function(){
+  return '<b>' + this.series.xAxis.categories[this.point.x] + '</b>' + '<br>' +
+  this.series.yAxis.categories[this.point.y] + ':  ' + Highcharts.numberFormat(this.point.value, 2);
+}")
+# string format adds commas per 1000
+fntltp_cases <- JS("function(){
+  return '<b>' + this.series.xAxis.categories[this.point.x] + '</b>' + '<br>' +
+  this.series.yAxis.categories[this.point.y] + ':  ' + this.point.value.toLocaleString(undefined, {maximumFractionDigits: 0});
+}")
+
+
+
+# merges/overrides parts of tuft2 theme with my theme elements
+theme_cases <- hc_theme_merge(
+   hc_theme_tufte2(),
+   hc_theme(
+      chart = list(
+         backgroundColor = "black"
+      ),
+      title = list(
+         align = "left",
+         style = list(
+            color = "white",
+            fontSize = "18px"
+         )
+      ),
+      subtitle = list(
+         align = "left",
+         style = list(
+            color = "white",
+            fontSize = "16px"
+         )
+      ),
+      xAxis = list(
+         labels = list(
+            style = list(color = "white",
+                         fontSize = "14px")
+         ),
+         title = list(
+            text = "Week ending date",
+            style = list(color = "white",
+                         fontSize = "16px"),
+            # measure in pixels, pos value moves label up
+            offset = 50),
+         tickInterval = 2,
+         # move x-axis to top
+         opposite = TRUE
+      ),
+      yAxis = list(
+         labels = list(
+            style = list(color = "white",
+                         fontSize = "14px")
+            ),
+         # neg offset moves y-axis able left
+         offset = -5,
+         tickLength = 0,
+         gridLineWidth = 0,
+         minorGridLineWidth = 0
+      ),
+      legend = list(
+         layout = "horizontal",
+         align = "left",
+         verticalAlign = "top",
+         # moves legend closer to plot area; pixels
+         margin = -20
+      )
+   )
+)
+
+
+theme_cap <- hc_theme_merge(
+   hc_theme_tufte2(),
+   hc_theme(
+      chart = list(
+         backgroundColor = "black"
+      ),
+      subtitle = list(
+         align = "left",
+         style = list(
+            color = "white",
+            fontSize = "16px"
+         )
+      ),
+      caption = list(
+         align = "left",
+         style = list(
+            color = "white"
+         )
+      ),
+      # bottom chart doesn't need dates axis
+      xAxis = list(
+         labels = list(
+            enabled = FALSE
+         )
+      ),
+      yAxis = list(
+         labels = list(
+            style = list(color = "white",
+                         fontSize = "14px")
+            ),
+         # neg offset moves y-axis able left
+         offset = -5,
+         tickLength = 0,
+         gridLineWidth = 0,
+         minorGridLineWidth = 0
+      ),
+      legend = list(
+         layout = "horizontal",
+         align = "left",
+         verticalAlign = "top"
+      )
+   )
+)
+
+
+# cases
+high_cases <- highchart() %>%
+   hc_add_series(data = heat_dat, type = "heatmap",
+                 # value needed when multiple numerics in dataset (I think)
+                 hcaes(x = end_date, y = age_grp, value = weekly_cases)) %>% 
+   hc_yAxis(categories = heat_dat$age_grp) %>% 
+   # theres "datetime" for type arg but doesn't work with just dates so need categories
+   hc_xAxis(categories = levels(heat_dat$end_date),
+            # data date and school start annotation + vertical line
+            plotLines = list(plotline_school_cases, plotline_datadate)) %>% 
+   hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
+                # endontick=T only allows integers for min and max
+                endOnTick = FALSE, max = 2500,
+                # legend axis labels
+                labels = list(
+                   style = list(color = "#ffffff")
+                )) %>% 
+   hc_tooltip(formatter = fntltp_cases) %>% 
+   # hc_title(text = "Weekly COVID-19 Cases by Age") %>%
+   hc_subtitle(text = "cases") %>% 
+   hc_add_theme(theme_cases)
+
+# cases per 1000
+high_cap <- highchart() %>%
+   hc_add_series(data = heat_dat, type = "heatmap",
+                 # value needed when multiple numerics in dataset (I think)
+                 hcaes(x = end_date, y = age_grp, value = prop_cases)) %>% 
+   hc_yAxis(categories = heat_dat$age_grp) %>% 
+   # theres "datetime" for type arg but doesn't work with just dates so need categories
+   hc_xAxis(categories = levels(heat_dat$end_date),
+            # adds vertical line marking when school started
+            plotLines = list(plotline_school_cap)) %>% 
+   # 1000 adds more gradations (more continuous), begin = .10 starts palette in a lighter area
+   hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
+                # endontick=T only allows integers for min and max
+                endOnTick = FALSE, max = 3.5,
+                # legend axis labels
+                labels = list(
+                   style = list(color = "#ffffff")
+                )) %>% 
+   hc_tooltip(formatter = fntltp_capita) %>%
+   hc_subtitle(text = "cases per 1000 residents per age group") %>% 
+   hc_caption(text = caption_text) %>%
+   hc_add_theme(theme_cap)
+
+
+htmlwidgets::saveWidget(high_cap, file = glue("{rprojroot::find_rstudio_root_file()}/images/demographics/heat-cap.html"))
+
+htmlwidgets::saveWidget(high_cases, file = glue("{rprojroot::find_rstudio_root_file()}/images/demographics/heat-cases.html"))
+
+hw_grid(list(high_cases, high_cap),
+        ncol = 1)
+
+
+```
+  
+Both heatmaps show a breakdown of weekly COVID-19 cases by age group.  
+
+  * In the top heatmap, the intensity of color in each cell represents number of cases for that age range in a particular week.  
+  * In the bottom heatmap, the number of cases is scaled to per 1000 residents per age group. For example on the week that ended on May 5th, there were 2.26 cases for every 1000 residents that were 80 yrs or older.   
+
+While raw totals can give us an idea about the age distribution of cases, it can sometimes be misleading. As of 2019, there are 1,752,893 residents in the 0 to 19 age group and 815,370 residents in the 40 to 49 age group, so 2000 cases may be a substantial signal of something for one group but not the other.  
+
+Higher intensity cells in the scaled cases heatmap could indicate outbreaks in more age-consistent venues. On May 5th in the top heatmap, the cell for 80 and older is on the lower end of the intensity scale, and in the bottom heatmap, the intensity of that cell is in the upper third. An explanation for this difference could be that there were outbreaks at long term care facilities. A similar instance involving the 20-29 group might indicate bars or colleges as a hotspot.  
+
+Hovering over the cells shows the final date of the weekly interval, the age group, and weekly case total or weekly scaled case total.
+\
+\
+\
+
+## Weekly COVID-19 Deaths by Age Group
+
+```{r age-deaths, echo=FALSE, warning=FALSE}
+
+line_data_date <- ind_age_clean %>% 
+   filter(end_date == max(end_date)) %>% 
+   slice_tail() %>% 
+   pull(end_date)
+
+
+gen_plots <- function(data, Name) {
+   
+   num_breaks <- data %>% 
+      filter(weekly_total == max(weekly_total)) %>% 
+      mutate(num_breaks = case_when(
+         weekly_total == 1 ~ 1,
+         max(weekly_total) > 4 ~ 5,
+         TRUE ~ max(weekly_total) + 1
+      )) %>%
+      slice_head() %>% 
+      pull(num_breaks)
+   
+   g <- ggplot(data, aes(x = end_date, y = weekly_total)) + 
+      geom_point_interactive(aes(tooltip = tooltip, data_id = tooltip),
+                             color = "#99775c", size = 3) + 
+      geom_smooth(
+         color = "#CC3D24FF",
+         se = FALSE, method = "loess",
+         span = 1.05, formula = 'y ~ x') +
+      scale_y_continuous(breaks= scales::pretty_breaks(num_breaks)) +
+      scale_x_date(position = "top") +
+      labs(x = NULL, y = NULL, title = Name)
+   
+   if (Name == "0 to 19") {
+      g <- g + ggrepel::geom_label_repel(data = data %>% 
+                                            filter(end_date == as.Date("2020-08-11")),
+                                         aes(label = "School Starts"),
+                                         fill = "black", color = "#fde725",
+                                         point.padding = 2, label.size = 0.60,
+                                         seed = 125, direction = "y")
+   }
+   # seed 125
+   
+   # top charts have x-axis
+   if (Name == "0 to 19" | Name == "20 to 29" | Name == "30 to 39"){
+      g + theme(plot.title = element_text(color = "white",
+                                          family = "sans",
+                                          face = "bold.italic"),
+                legend.position = "none",
+                axis.text.x = element_text(color = "white",
+                                           size = 14,
+                                           family = "sans"),
+                axis.text.y = element_text(color = "white",
+                                           size = 14,
+                                           family = "sans"),
+                axis.ticks = element_blank(),
+                panel.background = element_rect(fill = "black",
+                                                color = NA),
+                plot.background = element_rect(fill = "black",
+                                               color = NA),
+                
+                panel.border = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.grid.major = element_line(color = deep_rooted[[7]]))
+   } else {
+      # bottom charts
+      g + theme(plot.title = element_text(color = "white",
+                                          family = "sans",
+                                          face = "bold.italic"),
+                legend.position = "none",
+                axis.text.x = element_blank(),
+                axis.text.y = element_text(color = "white",
+                                           size = 14,
+                                           family = "sans"),
+                axis.ticks = element_blank(),
+                panel.background = element_rect(fill = "black",
+                                                color = NA),
+                plot.background = element_rect(fill = "black",
+                                               color = NA),
+                
+                panel.border = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.grid.major = element_line(color = deep_rooted[[7]]))
+   }
+}
+
+
+age_plots <- ind_age_clean %>%
+   group_by(agegrp) %>% 
+   tidyr::nest() %>% 
+   mutate(plots = purrr::map2(data, agegrp, ~gen_plots(.x, .y)))
+
+
+all_charts <- age_plots$plots[[1]] + age_plots$plots[[2]] + age_plots$plots[[3]] + age_plots$plots[[4]] + age_plots$plots[[5]] + age_plots$plots[[6]] + age_plots$plots[[7]] + age_plots$plots[[8]] +
+   plot_annotation(
+         # title = "Weekly COVID-19 Deaths by Age Group",
+         subtitle = glue("Data Date: {line_data_date}"),
+         caption = "Source: Indiana Data Hub") &
+   theme(plot.title = element_text(color = "white",
+                                   size = 20,
+                                   family = "sans"),
+         plot.subtitle = element_text(color = "white",
+                                      size = 16,
+                                      family = "sans"),
+         plot.caption = element_text(color = "white",
+                                     size = 14,
+                                     family = "sans"),
+         panel.background = element_rect(fill = "black",
+                                         color = NA),
+         panel.border = element_blank(),
+         plot.background = element_rect(fill = "black",
+                                        color = NA))
+
+age_deaths <- girafe(code = print(all_charts),
+       fonts = list(sans = "Cardo"),
+       options = list(
+          opts_tooltip(css = "font-size:12px;color:black;background-color:white;font-family:'Cardo';padding:2px")
+       ),
+       width_svg = 16,
+       height_svg = 9
+)
+
+
+htmlwidgets::saveWidget(age_deaths, file = glue("{rprojroot::find_rstudio_root_file()}/images/demographics/age-deaths.html"))
+
+
+age_deaths
+
+```
+
+This group of charts shows weekly death counts and trend lines for each age group. The reason these charts only show relatively recent data is that Indiana doesn't publish historic data for these variables, and I only started collecting the daily reports in late June.  
+
+Also, there was collection mishap from July 10th to July 19th where no data was collected. I've filled in these missing values using an imputation algorithm.  
+
+Hovering over the points show the final date of the weekly interval and the deaths for that week.
+\
+\

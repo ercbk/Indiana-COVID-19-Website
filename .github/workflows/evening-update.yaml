@@ -3,6 +3,8 @@ name: Evening Update
 on:
   repository_dispatch:
     types: [evening-update]
+  schedule:
+    - cron: '50 0 * * *'
 
 
 jobs:
@@ -74,6 +76,9 @@ jobs:
       
       - name: rebuild website
         run: Rscript -e "rmarkdown::render_site()"
+        
+      - name: demographics screenshots
+        run: Rscript "R/demographics-screenshots.R"
       
       - name: Commit files
         run: |
@@ -91,5 +96,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'gh-pages'
       
-      - name: Tweet evening update
-        run: Rscript "tweet/tweet-evening-update.R"
+      #- name: Tweet evening update
+        #run: Rscript "tweet/tweet-evening-update.R"

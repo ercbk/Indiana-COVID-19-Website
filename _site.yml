@@ -8,6 +8,9 @@ navbar:
     - text: "Static Charts"
       icon: fa-images
       href: static.html
+    - text: "Demographics"
+      icon: fa-users
+      href: demographics.html
     - text: "COVIDcast Dashboard"
       icon: glyphicon-stats
       href: https://ercbk.github.io/Indiana-COVIDcast-Dashboard/#dashboard

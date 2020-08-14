@@ -73,6 +73,9 @@ jobs:
       
       - name: rebuild website
         run: Rscript -e "rmarkdown::render_site()"
+        
+      - name: demographics screenshots
+        run: Rscript "R/demographics-screenshots.R"
       
       - name: Commit files
         run: |
