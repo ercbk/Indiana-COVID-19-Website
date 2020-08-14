@@ -51,6 +51,12 @@ jobs:
       - name: Install udunits2
         run: sudo apt-get install libudunits2-dev
       
+      # install highcharter dependencies
+      - name: highcharter deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libglpk-dev libjq-dev libv8-dev libprotobuf-dev protobuf-compiler libudunits2-dev libgdal-dev
+      
       # cache dev environment, restore environment from cache
       - name: Cache packages
         uses: actions/cache@v2
