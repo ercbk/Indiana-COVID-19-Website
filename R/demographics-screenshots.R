@@ -1,6 +1,6 @@
 # Take some pictures of the demographics charts
 
-
+library(glue)
 
 # age group, tests, deaths bubble chart
 webshot::webshot(glue("{rprojroot::find_rstudio_root_file()}/images/demographics/age-bubble.html"),
