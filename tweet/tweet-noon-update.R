@@ -38,10 +38,12 @@ tweet_id <- rtweet::get_timeline("StateHealthIN",
    pull(status_id)
 
 dash_img_paths <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVIDcast-Dashboard/images/dashboard")))
+dem_img_paths <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/images/demographics"), regexp = "png"))
 
 # get plot paths, names, and dates
 png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/plots"))) %>% 
    bind_rows(dash_img_paths) %>%
+   bind_rows(dem_img_paths) %>% 
    mutate(
       chart = stringr::str_extract(paths,
                                    pattern = "[a-z]*-[a-z]*-[a-z]*"),
@@ -53,7 +55,7 @@ png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstu
    filter(date == max(date)) %>% 
    ungroup()
 
-random_pic <- sample(c(1,2,3,4,6,7,10,11,12), size = 1)
+random_pic <- sample(c(1,2,3,4,6,7,10,11,12,13,14,15,16), size = 1)
 fixed_pics <- c(5, 8, 9)
 lineup <- c(fixed_pics, random_pic)
 
@@ -62,17 +64,23 @@ pngs <- png_files %>%
    pull(paths)
 
 # need "@<account>" to post on a reply thread
-msg <- glue::glue("@StateHealthIN More charts and analysis at
+msg <- glue::glue("@StateHealthIN More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
-                  COVIDcast Dashboard: https://bit.ly/2VSOM44")
+                  COVIDcast Dashboard: https://bit.ly/2VSOM44
+                  (New addition)
+                  Demographics: https://bit.ly/3kN2uQM")
 
-msg_e <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis
+msg_e <- glue::glue("Indiana COVID-19 Tracker noon update.
                   Static Charts: https://bit.ly/2Cdq33q
-                  COVIDcast Dashboard: https://bit.ly/2VSOM44 #rstats")
+                  COVIDcast Dashboard: https://bit.ly/2VSOM44
+                  (New addition)
+                  Demographics: https://bit.ly/3kN2uQM #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
-                  COVIDcast Dashboard: https://bit.ly/2VSOM44")
+                  COVIDcast Dashboard: https://bit.ly/2VSOM44
+                  (New addition)
+                  Demographics: https://bit.ly/3kN2uQM")
 
 
 if (length(tweet_id) != 0) {
