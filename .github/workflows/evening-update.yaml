@@ -102,5 +102,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'gh-pages'
       
-      #- name: Tweet evening update
-        #run: Rscript "tweet/tweet-evening-update.R"
+      - name: Tweet evening update
+        run: Rscript "tweet/tweet-evening-update.R"
