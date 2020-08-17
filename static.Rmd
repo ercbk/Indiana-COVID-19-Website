@@ -50,7 +50,7 @@ Charts updated between noon and 1pm ET and at 6:30 pm ET
 Changelog located in [NEWS.md](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md)  
 \
 
-## **Cumulative Cases and Cumulative Deaths ** 
+## **Cumulative Cases and Cumulative Deaths **  
 ```{r}
 ind_line_path <- glue::glue("Indiana-COVID-19-Tracker/plots/ind-combo-line-{ind_combo_date}.png")
 knitr::include_graphics(ind_line_path)
@@ -63,7 +63,7 @@ knitr::include_graphics(ind_line_path)
 \
 \
 
-## **Daily Positive Cases vs Cumulative Cases**  
+## **Daily Positive Cases vs Cumulative Cases **  
 ```{r ,align="center"}
 pos_policy_path <- glue::glue("Indiana-COVID-19-Tracker/plots/pos-policy-line-{pos_policy_date}.png")
 knitr::include_graphics(pos_policy_path)
