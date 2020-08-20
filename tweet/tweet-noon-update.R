@@ -67,19 +67,16 @@ pngs <- png_files %>%
 msg <- glue::glue("@StateHealthIN More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  (New addition)
                   Demographics: https://bit.ly/3kN2uQM")
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker noon update.
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  (New addition)
                   Demographics: https://bit.ly/3kN2uQM #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  (New addition)
                   Demographics: https://bit.ly/3kN2uQM")
 
 
