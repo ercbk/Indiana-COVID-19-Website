@@ -467,6 +467,7 @@ line_data_date <- ind_age_clean %>%
 
 gen_plots <- function(data, Name) {
    
+   # Only want integer breaks. With small totals, ggplot creates breaks with decimal values 
    num_breaks <- data %>% 
       filter(weekly_total == max(weekly_total)) %>% 
       mutate(num_breaks = case_when(
@@ -477,10 +478,15 @@ gen_plots <- function(data, Name) {
       slice_head() %>% 
       pull(num_breaks)
    
+   # last point is only a complete week's worth of data for 1 out of 7 days. I don't want the trend line affected by it, so I'm removing it from the geom_smooth data.
+   line_data <- data %>% 
+      slice(-n())
+   
    g <- ggplot(data, aes(x = end_date, y = weekly_total)) + 
       geom_point_interactive(aes(tooltip = tooltip, data_id = tooltip),
                              color = "#99775c", size = 3) + 
       geom_smooth(
+         data = line_data,
          color = "#CC3D24FF",
          se = FALSE, method = "loess",
          span = 1.05, formula = 'y ~ x') +
@@ -541,13 +547,13 @@ gen_plots <- function(data, Name) {
    }
 }
 
-
+# create all the giraphs
 age_plots <- ind_age_clean %>%
    group_by(agegrp) %>% 
    tidyr::nest() %>% 
    mutate(plots = purrr::map2(data, agegrp, ~gen_plots(.x, .y)))
 
-
+# use patchwork to facet them
 all_charts <- age_plots$plots[[1]] + age_plots$plots[[2]] + age_plots$plots[[3]] + age_plots$plots[[4]] + age_plots$plots[[5]] + age_plots$plots[[6]] + age_plots$plots[[7]] + age_plots$plots[[8]] +
    plot_annotation(
          # title = "Weekly COVID-19 Deaths by Age Group",
@@ -568,11 +574,13 @@ all_charts <- age_plots$plots[[1]] + age_plots$plots[[2]] + age_plots$plots[[3]]
          plot.background = element_rect(fill = "black",
                                         color = NA))
 
+# ggiraph options
 age_deaths <- girafe(code = print(all_charts),
        fonts = list(sans = "Cardo"),
        options = list(
           opts_tooltip(css = "font-size:12px;color:black;background-color:white;font-family:'Cardo';padding:2px")
        ),
+       # 1080p ratio
        width_svg = 16,
        height_svg = 9
 )
