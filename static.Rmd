@@ -175,7 +175,8 @@ knitr::include_graphics(daily_re_path)
 ``` 
 
    * The instantaneous effective reproduction number, R~e~ is an estimate of the average number of people that an infected person is spreading the virus to for that time window.  
-   * Estimates *slighly lower* than 1 indicate that the spread of the virus is slowly decreasing. Estimates *slightly larger* than 1 indicate a slow increasing spread of the virus. Estimates of *2 or greater* mean the virus is spreading rapidly.  
+   * Estimates *slighly lower* than 1 indicate that the spread of the virus is slowly decreasing. Estimates *slightly larger* than 1 indicate a slowly increasing spread of the virus. Estimates of *2 or greater* mean the virus is spreading rapidly.  
+   * For example, a R~e~ of 0.5 would mean that on average, if 4 people had the virus, those 4 people would only spread the virus to 2 other people. A R~e~ under 1 results in decreasing amounts of daily cases. The lower the R~e~ the faster the amount of daily cases will decrease. 
    * The shaded area shows the 80% credible interval where the true value is likely to be.
    * Further details on this metric can be found at a research [site](https://cbdrh.github.io/ozcoviz/#national-level-r_t) set-up by South Western Sydney Clinical School and the Centre for Big Data Research in Health.  
 \
@@ -189,5 +190,7 @@ knitr::include_graphics(exc_death_path)
 ``` 
 
   * The [CDC's](https://www.cdc.gov/nchs/nvss/vsrr/covid19/excess_deaths.htm) model uses data from 2015 to present to calculate estimates for weekly death counts. "Excess deaths" is defined as the difference between these estimates and the actual reported number of deaths.  
+  * Some of the bars shown have no excess deaths calculated for that week. This means that either that the number of actual deaths *equals* the model's estimated number of deaths (gray bars) for that week or that number of actual deaths is *less than* the model's estimated number of deaths. The instances where it is *less than* is the reason why that Excess Deaths + Expected Deaths $\neq$ Non-COVID Classified Deaths in the Totals box. 
   * A portion of these excess deaths could be misclassified COVID-19 deaths, "or potentially could be indirectly related to COVID-19 (e.g., deaths from other causes occurring in the context of health care shortages or overburdened health care systems)."  
-  * From the CDC site regarding the Causes-of-deaths data, "These causes were selected based on analyses of comorbid conditions reported on death certificates where COVID-19 was listed as a cause of death. Deaths with an underlying cause of death of COVID-19 are not included in these estimates of deaths due to other causes, but deaths where COVID-19 appeared on the death certificate as a multiple cause of death may be included in the cause-specific estimates."  
+  * For more information regarding the differences between <u>immediate</u> and <u>underlying</u> causes of death, plus the role that <u>comorbidities</u> play, I recommend this Twitter [thread](https://twitter.com/GidMK/status/1301077497304367104). 
+  * From the CDC site regarding the Causes-of-deaths data, "These causes were selected based on analyses of comorbid conditions reported on death certificates where COVID-19 was listed as a cause of death. Deaths with an underlying cause of death of COVID-19 are not included in these estimates of deaths due to other causes, but deaths where COVID-1 m,b9 appeared on the death certificate as a multiple cause of death may be included in the cause-specific estimates."  
