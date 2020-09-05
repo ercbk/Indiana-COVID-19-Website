@@ -1,0 +1,87 @@
+name: Upgrade Dryrun
+
+on:
+  repository_dispatch:
+    types: [upgrade-dryrun]
+  #schedule:
+    #- cron: '30 1 * * *'
+
+
+jobs:
+  upgrade:
+    name: Update IN COVID Tracker Website
+    #runs-on: [ubuntu-latest]
+    runs-on: ubuntu-18.04
+    
+    
+    # env vars for rtweet; 1 old one just to pull tweets; 2 others to tweet from accts    
+    env:
+      APPNAMEE: ${{ secrets.APPNAMEE }}
+      APIKEYE: ${{ secrets.APIKEYE }}
+      APISECRETE: ${{ secrets.APISECRETE }}
+      ACCESSTOKENE: ${{ secrets.ACCESSTOKENE }}
+      ACCESSSECRETE: ${{ secrets.ACCESSSECRETE }}
+      APPNAMEF: ${{ secrets.APPNAMEF }}
+      APIKEYF: ${{ secrets.APIKEYF }}
+      APISECRETF: ${{ secrets.APISECRETF }}
+      ACCESSTOKENF: ${{ secrets.ACCESSTOKENF }}
+      ACCESSSECRETF: ${{ secrets.ACCESSSECRETF }}
+      CRAN_REPO: https://packagemanager.rstudio.com/all/__linux__/bionic/latest
+      RENV_PATHS_ROOT: ~/.local/share/renv
+      
+      
+    steps:
+      
+      # copy repo and submodules; need token with repo scope  
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          submodules: true
+      
+      # installs r
+      - uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '4.0.2'
+      
+      # need libcurl to install RCurl pkg on Linux
+      - name: Install libcurl
+        run: sudo apt-get install libcurl4-openssl-dev
+      
+      # installs pandoc for rmarkdown
+      - uses: r-lib/actions/setup-pandoc@v1
+      
+      # needed for units package (might be needed for one of the time pkgs)
+      - name: Install udunits2
+        run: sudo apt-get install libudunits2-dev
+        
+      # install highcharter dependencies
+      - name: highcharter deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libglpk-dev libjq-dev libv8-dev libprotobuf-dev protobuf-compiler libudunits2-dev libgdal-dev
+      
+      # cache dev environment; restore from cache
+      - name: Cache packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+      
+      - name: Restore packages
+        shell: Rscript {0}
+        run: |
+          cran_repo <- c("CRAN" = Sys.getenv("CRAN_REPO"))
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv", repos = cran_repo)
+          renv::restore(repos = cran_repo)
+      
+      - name: Update tracker submodule
+        run: |
+          git submodule update --remote
+      
+      - name: rebuild website
+        run: Rscript -e "rmarkdown::render_site()"
+        
+      - name: demographics screenshots
+        run: Rscript "R/demographics-screenshots.R"
