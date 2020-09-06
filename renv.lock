@@ -65,13 +65,6 @@
       "Repository": "CRAN",
       "Hash": "7e2c62de2799dc212e5b52526c288e72"
     },
-    "XML": {
-      "Package": "XML",
-      "Version": "3.99-0.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "408d42d1359f2a84d377c1f7f0568624"
-    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.1",
