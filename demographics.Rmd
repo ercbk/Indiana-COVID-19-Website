@@ -140,7 +140,8 @@ age_bubble <- highchart() %>%
    # theres "datetime" for type arg but doesn't work with just dates so need categories
    # plotLine adds a vertical line and text normally, only used text to add data date
    hc_xAxis(categories = levels(med_age_tbl$end_date),
-            plotLines = list(plotline_datadate)) %>%
+            plotLines = list(plotline_datadate),
+            labels = list(step = 2)) %>%
    
    # phantom series, so I can get square legend symbols instead of circles
    hc_add_series(name = 'Median Age', type = "scatter", color = "#99875c",
@@ -394,7 +395,8 @@ high_cases <- highchart() %>%
    # theres "datetime" for type arg but doesn't work with just dates so need categories
    hc_xAxis(categories = levels(heat_dat$end_date),
             # data date and school start annotation + vertical line
-            plotLines = list(plotline_school_cases, plotline_datadate)) %>% 
+            plotLines = list(plotline_school_cases, plotline_datadate),
+            labels = list(step = 2)) %>% 
    hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
                 # endontick=T only allows integers for min and max
                 endOnTick = FALSE, max = 2500,
@@ -416,7 +418,8 @@ high_cap <- highchart() %>%
    # theres "datetime" for type arg but doesn't work with just dates so need categories
    hc_xAxis(categories = levels(heat_dat$end_date),
             # adds vertical line marking when school started
-            plotLines = list(plotline_school_cap)) %>% 
+            plotLines = list(plotline_school_cap),
+            labels = list(step = 2)) %>% 
    # 1000 adds more gradations (more continuous), begin = .10 starts palette in a lighter area
    hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
                 # endontick=T only allows integers for min and max
