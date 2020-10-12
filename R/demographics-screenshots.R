@@ -46,7 +46,7 @@ png_files %>%
   fs::file_delete(.)
 
 # only need the md file for github
-fs::file_delete(glue::glue("{rprojroot::find_rstudio_root_file()}/README.html"))
+# fs::file_delete(glue::glue("{rprojroot::find_rstudio_root_file()}/README.html"))
 
 
 html_files <- fs::dir_ls(glue::glue("{rprojroot::find_rstudio_root_file()}/images/demographics"), regexp = "html")
