@@ -314,7 +314,8 @@ theme_cases <- hc_theme_merge(
             style = list(color = "white",
                          fontSize = "16px"),
             # measure in pixels, pos value moves label up
-            offset = 50),
+            offset = 50,
+            y = -30),
          tickInterval = 2,
          # move x-axis to top
          opposite = TRUE
