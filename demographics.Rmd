@@ -387,6 +387,18 @@ theme_cap <- hc_theme_merge(
 )
 
 
+# Indiana cases exceeded the range I had for my color scale (Based it on the Florida outbreak but the Hoosiers outdid Florida ::shrugs::). Attempting to add on to the end of the color range without changing the colors for previous values. It's a mess.
+extended_palette <- as.character()
+last_color <- last(inferno(n = 1500, begin = 0.10))
+for (i in (1:100)) {
+   new_color <- prismatic::clr_lighten(last_color, shift = 0.01)
+   extended_palette[[i]] <- new_color
+   last_color <- new_color
+}
+
+
+
+
 # cases
 high_cases <- highchart() %>%
    hc_add_series(data = heat_dat, type = "heatmap",
@@ -398,9 +410,9 @@ high_cases <- highchart() %>%
             # data date and school start annotation + vertical line
             plotLines = list(plotline_school_cases, plotline_datadate),
             labels = list(step = 2)) %>% 
-   hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
+   hc_colorAxis(stops = color_stops(1500, c(inferno(1500, begin = 0.10), extended_palette)),
                 # endontick=T only allows integers for min and max
-                endOnTick = FALSE, max = 2500,
+                endOnTick = FALSE, max = 3000,
                 # legend axis labels
                 labels = list(
                    style = list(color = "#ffffff")
@@ -421,10 +433,10 @@ high_cap <- highchart() %>%
             # adds vertical line marking when school started
             plotLines = list(plotline_school_cap),
             labels = list(step = 2)) %>% 
-   # 1000 adds more gradations (more continuous), begin = .10 starts palette in a lighter area
-   hc_colorAxis(stops = color_stops(1000, inferno(1000, begin = 0.10)),
+   # 1500 adds more gradations (more continuous), begin = .10 starts palette in a lighter area
+   hc_colorAxis(stops = color_stops(1500, c(inferno(1500, begin = 0.10), extended_palette)),
                 # endontick=T only allows integers for min and max
-                endOnTick = FALSE, max = 3.5,
+                endOnTick = FALSE, max = 4.0,
                 # legend axis labels
                 labels = list(
                    style = list(color = "#ffffff")
