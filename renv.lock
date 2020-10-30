@@ -506,6 +506,13 @@
       "Repository": "CRAN",
       "Hash": "95ef9167b75dde9d2ccc3c7528393e7e"
     },
+    "prismatic": {
+      "Package": "prismatic",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1751eff9cd67384716c6e324ffdab339"
+    },
     "processx": {
       "Package": "processx",
       "Version": "3.4.4",
