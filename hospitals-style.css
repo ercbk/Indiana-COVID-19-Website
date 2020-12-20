@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora&display=swap');
+
+
+/*------------- Whole Document---------------- */
+
+body {
+    font-family: 'Lora', serif;
+    font-size: 19px;
+}
+
+/*----------------ADDING WHITE SPACE-------------*/
+
+.title {
+  margin-top: 2em !important; /* means ignore all the subsequent rules, and apply !important rule and the !important keyword must be placed at the end of the line, immediately before the semicolon. */
+  margin-bottom: 0.75em;
+}
+
+.section h1,
+.section h2 {
+  font-family: 'Roboto', sans-serif;
+  padding-top: 3em !important; /*adding so much padding because theme adds a margin-top: -65px by default */
+  margin-bottom: 0.75em;
+}, 
+.section h3, 
+.section h4, 
+.section h5

@@ -11,6 +11,9 @@ navbar:
     - text: "Demographics"
       icon: fa-users
       href: demographics.html
+    - text: "Hospitals"
+      icon: fa-briefcase-medical
+      href: hospitals.html
     - text: "COVIDcast Dashboard"
       icon: glyphicon-stats
       href: https://ercbk.github.io/Indiana-COVIDcast-Dashboard/#dashboard

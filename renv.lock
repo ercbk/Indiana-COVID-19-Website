@@ -170,6 +170,18 @@
       "Repository": "CRAN",
       "Hash": "907b184e0fd13bc19154a8f322920015"
     },
+    "dataui": {
+      "Package": "dataui",
+      "Version": "0.0.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "dataui",
+      "RemoteUsername": "timelyportfolio",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "39583c661edddb44214a269aed5393ba91b2789d",
+      "Hash": "3952c735aa62cd9b4adc24c68b250eb1"
+    },
     "desc": {
       "Package": "desc",
       "Version": "1.2.0",
@@ -568,6 +580,20 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4de4156e52cd66215066d28c0577a56e"
+    },
+    "reactR": {
+      "Package": "reactR",
+      "Version": "0.4.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "85d50afbf95bf92bda97e9417575e8ff"
+    },
+    "reactable": {
+      "Package": "reactable",
+      "Version": "0.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ac1afe50d1c77470a72971a07fd146b1"
     },
     "readr": {
       "Package": "readr",

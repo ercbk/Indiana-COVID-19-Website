@@ -1,0 +1,280 @@
+---
+output: 
+      html_document:
+            css: hospitals-style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
+
+pacman::p_load(dplyr, glue, reactable, htmltools, dataui)
+
+react_tab_final <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-react-tab.rds"))
+goog_key <- Sys.getenv("GOOG_API")
+
+# palette for heatmap columns
+perc_pal <- scales::col_numeric(
+      palette =  colorspace::sequential_hcl(100, "ag_Sunset"),
+      domain = c(0, 1.00),
+      na.color = "hsl(0, 0%, 10%)",
+      reverse = TRUE
+)
+
+# palettes for sparklines
+hosp_light <- prismatic::clr_lighten("#47c8e5", shift = 0.60)
+hosp_dark <- prismatic::clr_darken("#47c8e5", shift = 0.60)
+icu_light <- prismatic::clr_lighten("#d5e547", shift = 0.60)
+icu_dark <- prismatic::clr_darken("#d5e547", shift = 0.60)
+
+react_theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(0, 0%, 10%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)"))
+```
+
+
+
+
+```{r, include=FALSE}
+
+# Calls Google Maps API when row is expanded
+row_details <- function(index) {
+      dat <- react_tab_final %>% 
+            slice(index)
+      
+      goog_api_params <- dat %>% 
+            distinct(hospital_name, city_zip) %>%
+            # extracts 1 or 2 words before the comma
+            mutate(city = stringr::str_extract(city_zip, pattern = "[:alpha:]* [:alpha:]*(?=,)|[:alpha:]*(?=,)")) %>% 
+            mutate_at(vars(hospital_name, city), stringr::str_replace_all, pattern = " ", replacement = "+") %>% 
+            select(-city_zip)
+      
+      goog_map_url <- glue::glue("https://www.google.com/maps/embed/v1/place?key={goog_key}&q={goog_api_params$hospital_name[[1]]},{goog_api_params$city[[1]]},IN")
+      
+      details <- tagList(
+            div(
+                  tags$br(),
+                  tags$iframe(
+                        src=goog_map_url,
+                        width="400",
+                        height="300",
+                        frameborder="0",
+                        style="border:0; margin-left:10px",
+                        allowfullscreen="",
+                        tabindex="0",
+                        marginwidth="50"
+                  )
+            )
+      )
+      return(details)
+}
+
+# Sparkline column functions
+icuBeds_spark <- function(...) {
+      colDef(
+            name = "Average Daily ICU Beds Occupied by COVID Patients",
+            minWidth = 200,
+            cell = dui_for_reactable(
+                  dui_sparkline(
+                        # name of the list of all the inner pairwise lists (i.e. outmost list)
+                        data = htmlwidgets::JS("cellInfo.value.avg_covid_icu_10k_list"),
+                        # y-axis value from each inner pairwise list
+                        valueAccessor = htmlwidgets::JS("(d) => d.avgCovIcuTenK[0]"),
+                        renderTooltip = htmlwidgets::JS(
+                              htmltools::HTML(
+                                    "function (_ref) {
+                   var datum = _ref.datum;
+                   // div around two spans makes horiz. date-value tooltip
+                   // react element format (type, style, function)
+                   return React.createElement(
+                     'div',
+                     null,
+                     datum.endDate && React.createElement(
+                        'span',
+                        {style: {
+                             backgroundColor: 'black', color: 'white',
+                             padding: '3px', margin: '0px 4px 0px 0px', textAlign: 'center'
+                           }},
+                        // splits date at '-', removes first elt, pastes remainder elts with '/'
+                        datum.endDate[0].split('-').slice(1).join('/')
+                     ),
+                     React.createElement(
+                        'span',
+                        {style: {
+                        fontWeight: 'bold', fontSize: '1.1em',
+                        padding: '1px'
+                        }},
+                        // undefined is the region (ie locale), {options}, maximumFractionDigits rounds up
+                        datum.y ? datum.y.toLocaleString(undefined, {maximumFractionDigits: 1}) : '--'
+                     )
+                   );
+                  }"
+                              )
+                        ),
+                        components = list(
+                              dui_sparklineargradient(
+                                    id = "bar_gradient1",
+                                    to = icu_light,
+                                    from = icu_dark
+                              ),
+                              dui_sparkbarseries(fill = "url(#bar_gradient1)",
+                                                 stroke = "#e57647"),
+                              dui_sparklineseries(stroke = "#e57647",
+                                                  strokeWidth = 0.8)
+                        )
+                  )
+            )
+      )
+} 
+
+hospBeds_spark <- function(...) {
+      colDef(
+            name = "Average Daily Hospital Beds Occupied by COVID Patients",
+            minWidth = 200,
+            cell = dui_for_reactable(
+                  dui_sparkline(
+                        # name of the list of all the inner pairwise lists (i.e. outmost list)
+                        data = htmlwidgets::JS("cellInfo.value.avg_covid_hosp_10k_list"),
+                        # y-axis value from each inner pairwise list
+                        valueAccessor = htmlwidgets::JS("(d) => d.avgCovHospTenK[0]"),
+                        renderTooltip = htmlwidgets::JS(
+                              htmltools::HTML(
+                                    "function (_ref) {
+                   var datum = _ref.datum;
+                   // div around two spans makes horiz. date-value tooltip
+                   // react element format (type, style, function)
+                   return React.createElement(
+                     'div',
+                     null,
+                     datum.endDate && React.createElement(
+                        'span',
+                        {style: {
+                             backgroundColor: 'black', color: 'white',
+                             padding: '3px', margin: '0px 4px 0px 0px', textAlign: 'center'
+                           }},
+                        // splits date at '-', removes first elt, pastes remainder elts with '/'
+                        datum.endDate[0].split('-').slice(1).join('/')
+                     ),
+                     React.createElement(
+                        'span',
+                        {style: {
+                        fontWeight: 'bold', fontSize: '1.1em',
+                        padding: '1px'
+                        }},
+                        // undefined is the region (ie locale), {options}, maximumFractionDigits rounds up
+                        datum.y ? datum.y.toLocaleString(undefined, {maximumFractionDigits: 1}) : '--'
+                     )
+                   );
+                  }"
+                              )
+                        ),
+                        components = list(
+                              dui_sparklineargradient(
+                                    id = "bar_gradient2",
+                                    to = hosp_light,
+                                    from = hosp_dark
+                              ),
+                              dui_sparkbarseries(fill = "url(#bar_gradient2)",
+                                                 stroke = "#47c8e5"),
+                              dui_sparklineseries(stroke = "#47c8e5",
+                                                  strokeWidth = 0.8)
+                        )
+                  )
+            )
+      )
+}
+
+```
+
+
+## **Local Hospital Capacity**
+
+```{r, message=FALSE, echo=FALSE}
+
+
+hosp_react_tab <- reactable(
+      data = react_tab_final %>% 
+            select(hospital_name, county_name,
+                   sev_day_icu_perc_occup, sev_day_hosp_perc_occup,
+                   avgCovIcuTenKList, avgCovHospTenKList),
+      borderless = TRUE,
+      searchable = TRUE,
+      style = list(fontSize = "14px"),
+      # expand when details button clicked
+      onClick = "expand",
+      # rows per page; default 10
+      defaultPageSize = 10,
+      defaultSortOrder = "desc",
+      # reference col which table is sorted by
+      defaultSorted = "sev_day_icu_perc_occup",
+      # Settings in dataui examples, not sure if necessary
+      defaultColDef = colDef(
+            align = "center",
+            headerStyle = "align-self: flex-end; font-weight:normal;"
+      ),
+      rowStyle = list(
+            alignItems = "center",
+            # add back border here
+            borderBottom = "1px solid lightgray"
+      ),
+      # highlight rows on hover
+      highlight = TRUE,
+      # row expansion function
+      details = row_details,
+      theme = react_theme,
+      columns = list(
+            hospital_name = colDef(
+                  name = "Hospital",
+                  maxWidth = 300
+            ),
+            county_name = colDef(
+                  name = "County",
+                  maxWidth = 300
+            ),
+            sev_day_icu_perc_occup = colDef(
+                  name = "ICU Occupancy",
+                  minWidth = 100,
+                  format = colFormat(percent = TRUE, digits = 1),
+                  style = function(value){
+                        col <- perc_pal(value)
+                        if (is.na(value) | value < 0.45) {
+                              list(background = col,
+                                   color = "#000000")
+                        } else {
+                              list(background = col)
+                        }
+                  }
+            ),
+            sev_day_hosp_perc_occup = colDef(
+                  name = "Hospital Bed Occupancy",
+                  maxWidth = 110,
+                  format = colFormat(percent = TRUE, digits = 1),
+                  style = function(value){
+                        col <- perc_pal(value)
+                        if (is.na(value) | value < 0.45) {
+                              list(background = col,
+                                   color = "#000000")
+                        } else {
+                              list(background = col)
+                        }
+                  }
+            ),
+            avgCovIcuTenKList = icuBeds_spark(),
+            avgCovHospTenKList = hospBeds_spark()
+      )
+) %>% 
+      dui_add_reactable_dep()
+
+hosp_react_tab
+
+
+
+```
+
+This table shows various capacity measures for hospitals at the local level.
