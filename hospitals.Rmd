@@ -277,4 +277,18 @@ hosp_react_tab
 
 ```
 
-This table shows various capacity measures for hospitals at the local level.
+This table shows capacity measures and counts of COVID-19 patients for hospitals at the local level. The CDC publishes this dataset every Monday, and the latest data should cover the interval from the Friday two-weeks prior to the previous Thursday. For example, data published on December 21st will contain data from December 11th to December 17th. Given the weekly reporting schedule and the lag between the publishing and collection, I wouldn't recommend basing any personal actions solely on these data.  
+
+Explanations for empty cells in the table and details on my methodology of handling of missing and obscured data by the CDC can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
+
+   * *ICU Occupancy* is the proportion of the seven-day average of occupied ICU beds to the seven-day average of available ICU beds. The average daily percent of ICU beds being used over the current seven-day period.
+   * *Hospital Bed Occupancy* is the proportion of the seven-day average of occupied hospital beds to the seven-day average of available hospital beds. The average daily percent of hospital beds being used over the current seven-day period.  
+   * *Average Daily ICU Beds Occupied by COVID Patients* is the average daily number of ICU beds being used by confirmed and suspected COVID-19 patients over that period. Hovering over a bar displays the average count and end date for that weekly period.  
+   * *Average Daily Hospital Beds Occupied by COVID Patients* is the average daily number of hospital beds being used by confirmed and suspected COVID-19 patients over that period. Hovering over a bar displays the average count and end date for that weekly period.  
+   
+The table is sorted by ICU Occupancy by default, but it can also be sorted alphabetically by Hospital or County and numerically by Hospital Occupancy. The search box in the upper-right corner can be used to filter the table by Hospital or County. Clicking on the triangles on the left-side of the table will expand the row and reveal an embedded Google Map centered on that hospital (may take a second to load).  
+
+\
+\
+\
+   

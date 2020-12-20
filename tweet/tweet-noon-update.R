@@ -67,17 +67,20 @@ pngs <- png_files %>%
 msg <- glue::glue("@StateHealthIN More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  Demographics: https://bit.ly/3kN2uQM")
+                  Demographics: https://bit.ly/3kN2uQM
+                  Hospitals: http://bit.ly/3h3CMGg")
 
 msg_e <- glue::glue("Indiana COVID-19 Tracker noon update.
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  Demographics: https://bit.ly/3kN2uQM #rstats")
+                  Demographics: https://bit.ly/3kN2uQM
+                  Hospitals: http://bit.ly/3h3CMGg #rstats")
 
 msg_f <- glue::glue("Indiana COVID-19 Tracker noon update. More charts and analysis 
                   Static Charts: https://bit.ly/2Cdq33q
                   COVIDcast Dashboard: https://bit.ly/2VSOM44
-                  Demographics: https://bit.ly/3kN2uQM")
+                  Demographics: https://bit.ly/3kN2uQM
+                  Hospitals: http://bit.ly/3h3CMGg")
 
 
 if (length(tweet_id) != 0) {
