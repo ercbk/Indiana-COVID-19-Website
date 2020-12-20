@@ -26,6 +26,7 @@ jobs:
       ACCESSSECRETF: ${{ secrets.ACCESSSECRETF }}
       CRAN_REPO: https://packagemanager.rstudio.com/all/__linux__/bionic/latest
       RENV_PATHS_ROOT: ~/.local/share/renv
+      GOOG_API: ${{ secrets.GOOG_API }}
     
     steps:
       
