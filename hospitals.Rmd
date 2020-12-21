@@ -41,7 +41,15 @@ react_theme = reactableTheme(
 
 
 
-```{r, include=FALSE}
+```{r react_funs, include=FALSE}
+
+# reformat to Month day
+react_data_date <- as.character(format(react_tab_final$end_date[[1]], "%B %d"))
+# # header function to create tooltip
+with_tooltip <- function(value, tooltip) {
+      span(title = tooltip, value)
+}
+
 
 # Calls Google Maps API when row is expanded
 row_details <- function(index) {
@@ -195,7 +203,7 @@ hospBeds_spark <- function(...) {
 
 ## **Local Hospital Capacity**
 
-```{r, message=FALSE, echo=FALSE}
+```{r reactable, message=FALSE, echo=FALSE}
 
 
 hosp_react_tab <- reactable(
@@ -238,7 +246,7 @@ hosp_react_tab <- reactable(
                   maxWidth = 300
             ),
             sev_day_icu_perc_occup = colDef(
-                  name = "ICU Occupancy",
+                  header = with_tooltip("ICU Occupancy", react_data_date),
                   minWidth = 100,
                   format = colFormat(percent = TRUE, digits = 1),
                   style = function(value){
@@ -252,7 +260,7 @@ hosp_react_tab <- reactable(
                   }
             ),
             sev_day_hosp_perc_occup = colDef(
-                  name = "Hospital Bed Occupancy",
+                  header = with_tooltip("Hospital Bed Occupancy", react_data_date),
                   maxWidth = 110,
                   format = colFormat(percent = TRUE, digits = 1),
                   style = function(value){
@@ -281,8 +289,8 @@ This table shows capacity measures and counts of COVID-19 patients for hospitals
 
 Explanations for empty cells in the table and details on my methodology of handling of missing and obscured data by the CDC can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
 
-   * *ICU Occupancy* is the proportion of the seven-day average of occupied ICU beds to the seven-day average of available ICU beds. The average daily percent of ICU beds being used over the current seven-day period.
-   * *Hospital Bed Occupancy* is the proportion of the seven-day average of occupied hospital beds to the seven-day average of available hospital beds. The average daily percent of hospital beds being used over the current seven-day period.  
+   * *ICU Occupancy* is the proportion of the seven-day average of occupied ICU beds to the seven-day average of available ICU beds. The average daily percent of ICU beds being used over the current seven-day period. Hovering over the column name displays data date.  
+   * *Hospital Bed Occupancy* is the proportion of the seven-day average of occupied hospital beds to the seven-day average of available hospital beds. The average daily percent of hospital beds being used over the current seven-day period. Hovering over the column name displays the data date.  
    * *Average Daily ICU Beds Occupied by COVID Patients* is the average daily number of ICU beds being used by confirmed and suspected COVID-19 patients over that period. Hovering over a bar displays the average count and end date for that weekly period.  
    * *Average Daily Hospital Beds Occupied by COVID Patients* is the average daily number of hospital beds being used by confirmed and suspected COVID-19 patients over that period. Hovering over a bar displays the average count and end date for that weekly period.  
    
