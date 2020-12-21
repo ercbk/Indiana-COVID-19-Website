@@ -44,7 +44,7 @@ react_theme = reactableTheme(
 ```{r react_funs, include=FALSE}
 
 # reformat to Month day
-react_data_date <- as.character(format(react_tab_final$end_date[[1]], "%B %d"))
+react_data_date <- as.character(format(max(react_tab_final$end_date), "%B %d"))
 # # header function to create tooltip
 with_tooltip <- function(value, tooltip) {
       span(title = tooltip, value)
