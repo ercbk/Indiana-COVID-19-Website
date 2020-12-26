@@ -125,6 +125,7 @@ tests_axis = list(
    opposite = TRUE
 )
 
+# "school starts" annotation is above this bar
 annot_y <- med_age_tbl %>% 
    filter(end_date == "Aug 11") %>% 
    pull(median_age)

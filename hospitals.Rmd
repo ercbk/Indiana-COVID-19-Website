@@ -7,37 +7,186 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
 
-pacman::p_load(dplyr, glue, reactable, htmltools, dataui)
+pacman::p_load(dplyr, glue, reactable, highcharter, htmltools, dataui)
 
 react_tab_final <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-react-tab.rds"))
+mort_staff_admiss_dat <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-msa-line.rds"))
 goog_key <- Sys.getenv("GOOG_API")
 
-# palette for heatmap columns
-perc_pal <- scales::col_numeric(
-      palette =  colorspace::sequential_hcl(100, "ag_Sunset"),
-      domain = c(0, 1.00),
-      na.color = "hsl(0, 0%, 10%)",
-      reverse = TRUE
-)
 
-# palettes for sparklines
-hosp_light <- prismatic::clr_lighten("#47c8e5", shift = 0.60)
-hosp_dark <- prismatic::clr_darken("#47c8e5", shift = 0.60)
-icu_light <- prismatic::clr_lighten("#d5e547", shift = 0.60)
-icu_dark <- prismatic::clr_darken("#d5e547", shift = 0.60)
-
-react_theme = reactableTheme(
-      color = "hsl(233, 9%, 87%)",
-      backgroundColor = "hsl(0, 0%, 10%)",
-      borderColor = "hsl(233, 9%, 22%)",
-      stripedColor = "hsl(233, 12%, 22%)",
-      highlightColor = "hsl(233, 12%, 24%)",
-      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)"))
 ```
 
+
+
+```{r state-msa-style-funs, include=FALSE}
+# Shared tooltip formatting function
+# this.points is your data (but not your date column for some reason), zero indexed
+# series.name is the series 'name' you entered below
+# y is value for the column you entered for 'y' for that series
+# this.x is the variable you entered for the xAxis
+fntltp <- JS("function(){
+              return '<b>' + this.x + '</b>' + '  (Rolling Averages)<br>' +
+              '<i>' + this.points[0].series.name + '</i>' + ' : ' + this.points[0].y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'}) + '<br>' +
+              '<i>' + this.points[1].series.name + '</i>' + ' : ' + this.points[1].y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'}) + '<br>' +
+              '<i>' + this.points[2].series.name + '</i>' + ' : ' + this.points[2].y.toFixed(1);
+}")
+
+# fun for yaxis labels
+yaxis_fmt <- JS("function(){
+      return this.value.toLocaleString(undefined, {maximumFractionDigits: 0, style: 'percent'});
+   }")
+
+# funs for data labels
+fmt_labs_perc <- JS("function(){
+               return this.point.y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'})
+}")
+fmt_labs_num <- JS("function(){
+               return this.point.y.toFixed(1)
+}")
+
+
+theme_hosp_msa <- hc_theme(
+      chart = list(
+            backgroundColor = "hsl(0, 0%, 5%)"
+      ),
+      yAxis = list(
+            title = list(text = NULL),
+            gridLineWidth = 0
+      ),
+      xAxis = list(
+            labels = list(
+                  style = list(fontSize = "14px",
+                               color = "white")
+            )
+      ),
+      legend = list(
+            layout = "horizontal",
+            align = "center",
+            verticalAlign = "top",
+            itemStyle = list(color = "white")
+      ),
+      caption = list(
+            align = "right",
+            style = list(color = "white")
+      )
+)
+
+```
+
+
+
+## **State Hospital Mortality, Staffing Shortages, Admissions**
+
+```{r state-msa-line, message=FALSE, echo=FALSE}
+state_msa_line <- highchart() %>%
+   # Couldn't get HC to hand date class so using ordered factor for date var
+   hc_xAxis(categories = levels(mort_staff_admiss_dat$date),
+            # label every <step> days
+            labels = list(step = 2)) %>%
+   
+   #Hospital Mortality Rate
+   # nid is for relative arg, syncs series to each other
+   hc_add_yAxis(nid = 1L,
+                labels = list(style = list(color = "white"),
+                              formatter = yaxis_fmt),
+                # HC calcs funky axis breaks sometimes; tickamounts = num_breaks
+                min = 0.10, max = 0.20, tickAmount = 6,
+                # first label removed because it's distorted in this facetted chart format
+                # relative syncs the tooltip to chart 3 (could also choose 2 probably)
+                showFirstLabel = FALSE, relative = 3) %>%
+   hc_add_series(name = 'Hospital Mortality Rate', data = mort_staff_admiss_dat,
+                 # increased lineWidth to highlight mort rate
+                 type = "line", lineWidth = 2.5,
+                 hcaes(x = date, y = mean_mort_rate),
+                 color = prismatic::clr_lighten("#a88814", shift = 0.3),
+                 # yAxis is the axis id (O indexed)
+                 yAxis = 0, tooltip = list(stickOnContact = FALSE),
+                 # states has various js-like effects type features
+                 # turned off effect of series being highlighted on hover
+                 states = list(inactive = list(enabled = FALSE)),
+                 # add label to latest data value
+                 dataLabels = list(
+                    enabled = TRUE,
+                    backgroundColor = "white",
+                    color = "black",
+                    formatter = fmt_labs_perc,
+                    filter = list(
+                       operator = "==",
+                       property = "index",
+                       # 0-indexed
+                       value = nrow(mort_staff_admiss_dat)-1
+                    ),
+                    # moves label above point
+                    y = -15)) %>% 
+   
+   # Hospitals with Staffing Shortages
+   hc_add_yAxis(nid = 2L,
+                labels = list(style = list(color = "white"),
+                              formatter = yaxis_fmt),
+                min = 0.14, max = 0.20,
+                tickAmount = 4, showFirstLabel = FALSE, relative = 1) %>%
+   hc_add_series(name = 'Hospitals with Staffing Shortages', data = mort_staff_admiss_dat,
+                 type = "line", hcaes(x = date, y = roll_mean_staff_short_perc), color = "#a8149e",
+                 yAxis = 1, tooltip = list(stickOnContact = FALSE),
+                 
+                 states = list(inactive = list(enabled = FALSE)),
+                 lineWidth = 1, opacity = 1, marker = list(radius = 3),
+                 dataLabels = list(
+                    enabled = TRUE,
+                    backgroundColor = "white",
+                    color = "black",
+                    formatter = fmt_labs_perc,
+                    filter = list(
+                       operator = "==",
+                       property = "index",
+                       value = nrow(mort_staff_admiss_dat)-1
+                    ),
+                    y = -15)) %>%
+   
+   # Hospital Admissions
+   hc_add_yAxis(nid = 3L,
+                labels = list(style = list(color = "white")),
+                tickAmount = 6, gridLineWidth = 0, 
+                showLastLabel = FALSE, relative = 2) %>% 
+   hc_add_series(name = 'Hospital Admissions', data = mort_staff_admiss_dat,
+                 type = "line", hcaes(x = date, y = roll_mean_admiss), color = '#1e14a8',
+                 yAxis = 2, tooltip = list(stickOnContact = FALSE),
+                 states = list(inactive = list(enabled = FALSE)),
+                 lineWidth = 1, opacity = 1, marker = list(radius = 2),
+                 dataLabels = list(
+                    enabled = TRUE,
+                    backgroundColor = "white",
+                    color = "black",
+                    formatter = fmt_labs_num,
+                    filter = list(
+                       operator = "==",
+                       property = "index",
+                       value = nrow(mort_staff_admiss_dat)-1
+                    ),
+                    y = -15)) %>% 
+   
+   # shared creates 1 tooltip box for all series and syncs them
+   hc_tooltip(formatter = fntltp,
+              shared = TRUE) %>% 
+   hc_caption(text = "Sources: Regenstrief Institute, Department of Health and Human Services") %>% 
+   hc_add_theme(theme_hosp_msa) %>% 
+   hc_size(height = 800)
+
+state_msa_line
+
+```
+
+This chart shows Indiana's hospital mortality rate and unique hospital admissions data collected by the [Regenstrief Institute](https://www.regenstrief.org/covid-dashboard/). The hospital staffing [data](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries) comes from the Department of Health and Human Services (HHS). If hospitals across the state become overwhelmed, resources will get rationed and patient outcomes may worsen. Therefore, a relationship between hospital admissions, staffing shortages, and hospital mortality rate seems like a reasonable assumption. Further details on the data and calculations can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
+
+   * *Hospital Mortality Rate* is the ratio of deaths of hospitalized patients and unique hospital admissions. Each rate is calculated over a rolling, 14-day window.  
+   * *Hospitals with Staffing Shortages* is the percent of reporting hospitals that have reported staffing shortages for that day. That percentage is averaged over a rolling, seven day window.  
+   * *Hospital Admissions* is the daily total of unique individuals admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
+   
+The latest data values for each variable are labelled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
+
+\
+\
+\
 
 
 
@@ -201,6 +350,35 @@ hospBeds_spark <- function(...) {
 ```
 
 
+```{r react-styling, include=FALSE}
+
+# palette for heatmap columns
+perc_pal <- scales::col_numeric(
+      palette =  colorspace::sequential_hcl(100, "ag_Sunset"),
+      domain = c(0, 1.00),
+      na.color = "hsl(0, 0%, 10%)",
+      reverse = TRUE
+)
+
+# palettes for sparklines
+hosp_light <- prismatic::clr_lighten("#47c8e5", shift = 0.60)
+hosp_dark <- prismatic::clr_darken("#47c8e5", shift = 0.60)
+icu_light <- prismatic::clr_lighten("#d5e547", shift = 0.60)
+icu_dark <- prismatic::clr_darken("#d5e547", shift = 0.60)
+
+react_theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(0, 0%, 5%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)"))
+
+```
+
 ## **Local Hospital Capacity**
 
 ```{r reactable, message=FALSE, echo=FALSE}
@@ -283,9 +461,11 @@ hosp_react_tab
 
 
 
+
 ```
 
-This table shows capacity measures and counts of COVID-19 patients for hospitals at the local level. The CDC publishes this dataset every Monday, and the latest data should cover the interval from the Friday two-weeks prior to the previous Thursday. For example, data published on December 21st will contain data from December 11th to December 17th. Given the weekly reporting schedule and the lag between the publishing and collection, I wouldn't recommend basing any personal actions solely on these data.  
+\
+This table shows capacity measures and counts of COVID-19 patients for hospitals at the local level. HHS publishes this [dataset](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-facility) every Monday, and the latest data should cover the interval from the Friday two-weeks prior to the previous Thursday. For example, data published on December 21st will contain data from December 11th to December 17th. Given the weekly reporting schedule and the lag between the publishing and collection, I wouldn't recommend basing any personal actions solely on these data.  
 
 Explanations for empty cells in the table and details on my methodology of handling of missing and obscured data by the CDC can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
 
@@ -299,4 +479,5 @@ The table is sorted by ICU Occupancy by default, but it can also be sorted alpha
 \
 \
 \
-   
+
+
