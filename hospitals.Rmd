@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
 pacman::p_load(dplyr, glue, reactable, highcharter, htmltools, dataui)
 
 react_tab_final <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-react-tab.rds"))
-mort_staff_admiss_dat <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-msa-line.rds"))
+mort_staff_admiss_skew_dat <- readr::read_rds(glue("{rprojroot::find_rstudio_root_file()}/Indiana-COVID-19-Tracker/data/hosp-msas-line.rds"))
 goog_key <- Sys.getenv("GOOG_API")
 
 
@@ -28,7 +28,8 @@ fntltp <- JS("function(){
               return '<b>' + this.x + '</b>' + '  (Rolling Averages)<br>' +
               '<i>' + this.points[0].series.name + '</i>' + ' : ' + this.points[0].y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'}) + '<br>' +
               '<i>' + this.points[1].series.name + '</i>' + ' : ' + this.points[1].y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'}) + '<br>' +
-              '<i>' + this.points[2].series.name + '</i>' + ' : ' + this.points[2].y.toFixed(1);
+              '<i>' + this.points[2].series.name + '</i>' + ' : ' + this.points[2].y.toFixed(1) + '<br>' +
+              '<i>' + this.points[3].series.name + '</i>' + ' : ' + this.points[3].y.toFixed(2);
 }")
 
 # fun for yaxis labels
@@ -40,8 +41,11 @@ yaxis_fmt <- JS("function(){
 fmt_labs_perc <- JS("function(){
                return this.point.y.toLocaleString(undefined, {maximumFractionDigits: 1, style: 'percent'})
 }")
-fmt_labs_num <- JS("function(){
+fmt_labs_adm <- JS("function(){
                return this.point.y.toFixed(1)
+}")
+fmt_labs_skew <- JS("function(){
+               return this.point.y.toFixed(2)
 }")
 
 
@@ -80,7 +84,7 @@ theme_hosp_msa <- hc_theme(
 ```{r state-msa-line, message=FALSE, echo=FALSE}
 state_msa_line <- highchart() %>%
    # Couldn't get HC to hand date class so using ordered factor for date var
-   hc_xAxis(categories = levels(mort_staff_admiss_dat$date),
+   hc_xAxis(categories = levels(mort_staff_admiss_skew_dat$date),
             # label every <step> days
             labels = list(step = 2)) %>%
    
@@ -93,8 +97,8 @@ state_msa_line <- highchart() %>%
                 min = 0.10, max = 0.20, tickAmount = 6,
                 # first label removed because it's distorted in this facetted chart format
                 # relative syncs the tooltip to chart 3 (could also choose 2 probably)
-                showFirstLabel = FALSE, relative = 3) %>%
-   hc_add_series(name = 'Hospital Mortality Rate', data = mort_staff_admiss_dat,
+                showLastLabel = FALSE, relative = 1) %>%
+   hc_add_series(name = 'Hospital Mortality Rate', data = mort_staff_admiss_skew_dat,
                  # increased lineWidth to highlight mort rate
                  type = "line", lineWidth = 2.5,
                  hcaes(x = date, y = mean_mort_rate),
@@ -114,7 +118,7 @@ state_msa_line <- highchart() %>%
                        operator = "==",
                        property = "index",
                        # 0-indexed
-                       value = nrow(mort_staff_admiss_dat)-1
+                       value = nrow(mort_staff_admiss_skew_dat)-1
                     ),
                     # moves label above point
                     y = -15)) %>% 
@@ -123,9 +127,10 @@ state_msa_line <- highchart() %>%
    hc_add_yAxis(nid = 2L,
                 labels = list(style = list(color = "white"),
                               formatter = yaxis_fmt),
-                min = 0.14, max = 0.20,
-                tickAmount = 4, showFirstLabel = FALSE, relative = 1) %>%
-   hc_add_series(name = 'Hospitals with Staffing Shortages', data = mort_staff_admiss_dat,
+                min = min(mort_staff_admiss_skew_dat$roll_mean_staff_short_perc) - 0.02,
+                max = max(mort_staff_admiss_skew_dat$roll_mean_staff_short_perc) + 0.02,
+                tickAmount = 4, showLastLabel = FALSE, relative = 1) %>%
+   hc_add_series(name = 'Hospitals with Staffing Shortages', data = mort_staff_admiss_skew_dat,
                  type = "line", hcaes(x = date, y = roll_mean_staff_short_perc), color = "#a8149e",
                  yAxis = 1, tooltip = list(stickOnContact = FALSE),
                  
@@ -139,7 +144,7 @@ state_msa_line <- highchart() %>%
                     filter = list(
                        operator = "==",
                        property = "index",
-                       value = nrow(mort_staff_admiss_dat)-1
+                       value = nrow(mort_staff_admiss_skew_dat)-1
                     ),
                     y = -15)) %>%
    
@@ -147,8 +152,8 @@ state_msa_line <- highchart() %>%
    hc_add_yAxis(nid = 3L,
                 labels = list(style = list(color = "white")),
                 tickAmount = 6, gridLineWidth = 0, 
-                showLastLabel = FALSE, relative = 2) %>% 
-   hc_add_series(name = 'Hospital Admissions', data = mort_staff_admiss_dat,
+                showLastLabel = FALSE, showFirstLabel = TRUE, relative = 4) %>% 
+   hc_add_series(name = 'Hospital Admissions', data = mort_staff_admiss_skew_dat,
                  type = "line", hcaes(x = date, y = roll_mean_admiss), color = '#1e14a8',
                  yAxis = 2, tooltip = list(stickOnContact = FALSE),
                  states = list(inactive = list(enabled = FALSE)),
@@ -157,11 +162,35 @@ state_msa_line <- highchart() %>%
                     enabled = TRUE,
                     backgroundColor = "white",
                     color = "black",
-                    formatter = fmt_labs_num,
+                    formatter = fmt_labs_adm,
                     filter = list(
                        operator = "==",
                        property = "index",
-                       value = nrow(mort_staff_admiss_dat)-1
+                       value = nrow(mort_staff_admiss_skew_dat)-1
+                    ),
+                    y = -15)) %>% 
+   
+   # Age Skew in Admissions
+   hc_add_yAxis(nid = 4L,
+                labels = list(style = list(color = "white")),
+                min = min(mort_staff_admiss_skew_dat$skewness) - 0.05,
+                max = max(mort_staff_admiss_skew_dat$skewness) + 0.05,
+                tickAmount = 4, gridLineWidth = 0, 
+                showLastLabel = FALSE, relative = 1) %>% 
+   hc_add_series(name = 'Age Skewness in Admissions', data = mort_staff_admiss_skew_dat,
+                 type = "line", hcaes(x = date, y = skewness), color = '#6814a8',
+                 yAxis = 3, tooltip = list(stickOnContact = FALSE),
+                 states = list(inactive = list(enabled = FALSE)),
+                 lineWidth = 1, opacity = 1, marker = list(radius = 2),
+                 dataLabels = list(
+                    enabled = TRUE,
+                    backgroundColor = "white",
+                    color = "black",
+                    formatter = fmt_labs_skew,
+                    filter = list(
+                       operator = "==",
+                       property = "index",
+                       value = nrow(mort_staff_admiss_skew_dat)-1
                     ),
                     y = -15)) %>% 
    
@@ -170,19 +199,20 @@ state_msa_line <- highchart() %>%
               shared = TRUE) %>% 
    hc_caption(text = "Sources: Regenstrief Institute, Department of Health and Human Services") %>% 
    hc_add_theme(theme_hosp_msa) %>% 
-   hc_size(height = 800)
+   hc_size(height = 900)
 
 state_msa_line
 
 ```
 
-This chart shows Indiana's hospital mortality rate and unique hospital admissions data collected by the [Regenstrief Institute](https://www.regenstrief.org/covid-dashboard/). The hospital staffing [data](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries) comes from the Department of Health and Human Services (HHS). If hospitals across the state become overwhelmed, resources will get rationed and patient outcomes may worsen. Therefore, a relationship between hospital admissions, staffing shortages, and hospital mortality rate seems like a reasonable assumption. Further details on the data and calculations can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
+This chart shows Indiana's hospital mortality rate and unique hospital admissions data collected by the [Regenstrief Institute](https://www.regenstrief.org/covid-dashboard/). The hospital staffing [data](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries) comes from the Department of Health and Human Services (HHS). If hospitals across the state become overwhelmed, resources will get rationed and patient outcomes may worsen. Therefore, a relationship between hospital admissions, staffing shortages, and the age make-up of admissions with hospital mortality rate seems like a reasonable assumption. If any of these three factors do influence hospital mortality, the effects aren't likely to manifest for days or maybe even a couple weeks. Further details on the data and calculations can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
 
    * *Hospital Mortality Rate* is the ratio of deaths of hospitalized patients and unique hospital admissions. Each rate is calculated over a rolling, 14-day window.  
    * *Hospitals with Staffing Shortages* is the percent of reporting hospitals that have reported staffing shortages for that day. That percentage is averaged over a rolling, seven day window.  
    * *Hospital Admissions* is the daily total of unique individuals admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
+   * *Age Skewness in Admissions* is a measurement of the age make-up of the hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older the group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
    
-The latest data values for each variable are labelled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
+The latest data values for each variable are labeled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
 
 \
 \
