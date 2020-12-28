@@ -155,7 +155,7 @@ age_bubble <- highchart() %>%
                  # z var determins bubble size, value needed when multiple numerics in dataset (I think)
                  hcaes(x = end_date, y = median_age, z = weekly_deaths, value = median_age),
                  # maxSize = general param for bubble sizes
-                 zMax = 500, maxSize = "18%", marker = list(fillColor = '#99875c'),
+                 zMax = 500, maxSize = "12%", marker = list(fillColor = '#99875c'),
                  # yAxis is the axis id, zIndex determines which series layer is outermost (larger = more outer)
                  yAxis = 0, zIndex = 0, tooltip = list(stickOnContact = FALSE),
                  # states has various js-like effects type features
@@ -195,8 +195,8 @@ age_bubble <- highchart() %>%
                                  color = "#99875c",
                                  # min and max size of circles in legend
                                  # too small a spread between minSize, maxSize can crowd-out 2nd bubble label
-                                 minSize = 25,
-                                 maxSize = 69,
+                                 minSize = 21,
+                                 maxSize = 40,
                                  labels = list(style = list(color = "white",
                                                             fontSize = 12),
                                                # integer format
