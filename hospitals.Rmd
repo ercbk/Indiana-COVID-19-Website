@@ -89,7 +89,7 @@ state_msa_line <- highchart() %>%
             labels = list(step = 2)) %>%
    
    #Hospital Mortality Rate
-   # nid is for "relative" height arg. relative arg is a mess. Best config I seen is setting them all to the same nid and messing with showLast/FirstLabel configurations 
+   # Don't know what nid is used for. "relative" is for chart height relative to the others. (e.g. all charts with relative set to 1 or 0.25 or whatever makes the charts the same height). Having them equal has been the best config. Others made the yaxiss run into and overlap each other. 
    hc_add_yAxis(nid = 1L,
                 labels = list(style = list(color = "white"),
                               formatter = yaxis_fmt),
@@ -210,7 +210,7 @@ This chart shows Indiana's hospital mortality rate and unique hospital admission
    * *Hospital Mortality Rate* is the ratio of deaths of hospitalized patients and unique hospital admissions. Each rate is calculated over a rolling, 14-day window.  
    * *Hospitals with Staffing Shortages* is the percent of reporting hospitals that have reported staffing shortages for that day. That percentage is averaged over a rolling, seven day window.  
    * *Hospital Admissions* is the daily total of unique individuals admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
-   * *Age Skewness in Admissions* is a measurement of the age make-up of the hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older the group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
+   * *Age Skewness in Admissions* is a measurement of the age makeup of the hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older that group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
    
 The latest data values for each variable are labeled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
 
