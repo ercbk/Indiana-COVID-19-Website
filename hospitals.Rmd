@@ -94,7 +94,9 @@ state_msa_line <- highchart() %>%
                 labels = list(style = list(color = "white"),
                               formatter = yaxis_fmt),
                 # HC calcs funky axis breaks sometimes; tickamounts = num_breaks
-                min = 0.10, max = 0.20, tickAmount = 6,
+                min = min(mort_staff_admiss_skew_dat$mean_mort_rate) - 0.02,
+                max = max(mort_staff_admiss_skew_dat$mean_mort_rate) + 0.02,
+                tickAmount = 6,
                 # first label removed because it's distorted in this facetted chart format
                 # relative syncs the tooltip to chart 3 (could also choose 2 probably)
                 showLastLabel = FALSE, relative = 1) %>%
