@@ -21,7 +21,7 @@ navbar:
     - icon: fa-twitter fa-lg
       href: https://twitter.com/erc_bk
     - icon: fa-github fa-lg
-      href: https://github.com/ercbk/Indiana-COVID-19-Tracker
+      href: https://github.com/ercbk/Indiana-COVID-19-Website
 
 output_dir: "."
 output:
