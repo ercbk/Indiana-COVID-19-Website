@@ -89,7 +89,7 @@ state_msa_line <- highchart() %>%
             labels = list(step = 2)) %>%
    
    #Hospital Mortality Rate
-   # Don't know what nid is used for. "relative" is for chart height relative to the others. (e.g. all charts with relative set to 1 or 0.25 or whatever makes the charts the same height). Having them equal has been the best config. Others made the yaxiss run into and overlap each other. 
+   # Don't know what nid is used for. "relative" is for chart height relative to the others. (e.g. all charts with relative set to 1 or 0.25 or whatever makes the charts the same height). Having them equal has been the best config. Others made the yaxes run into and overlap each other. 
    hc_add_yAxis(nid = 1L,
                 labels = list(style = list(color = "white"),
                               formatter = yaxis_fmt),
