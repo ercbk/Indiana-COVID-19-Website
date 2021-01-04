@@ -93,15 +93,14 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "6:30pm charts update" || echo "No changes to commit"
-          git config pull.rebase true
-          git pull
+          git push
       
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
+      #- name: Push changes
+        #uses: ad-m/github-push-action@master
+        #with:
           # GITHUB_TOKEN automatically created
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: 'gh-pages'
+          #github_token: ${{ secrets.GITHUB_TOKEN }}
+          #branch: 'gh-pages'
       
       - name: Tweet evening update
         run: Rscript "tweet/tweet-evening-update.R"
