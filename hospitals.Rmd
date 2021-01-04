@@ -86,7 +86,7 @@ state_msa_line <- highchart() %>%
    # Couldn't get HC to hand date class so using ordered factor for date var
    hc_xAxis(categories = levels(mort_staff_admiss_skew_dat$date),
             # label every <step> days
-            labels = list(step = 2)) %>%
+            labels = list(step = 7)) %>%
    
    #Hospital Mortality Rate
    # Don't know what nid is used for. "relative" is for chart height relative to the others. (e.g. all charts with relative set to 1 or 0.25 or whatever makes the charts the same height). Having them equal has been the best config. Others made the yaxes run into and overlap each other. 
@@ -209,10 +209,10 @@ state_msa_line
 
 This chart shows Indiana's hospital mortality rate and unique hospital admissions data collected by the [Regenstrief Institute](https://www.regenstrief.org/covid-dashboard/). The hospital staffing [data](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries) comes from the Department of Health and Human Services (HHS). If hospitals across the state become overwhelmed, resources will get rationed and patient outcomes may worsen. Therefore, a relationship between hospital admissions, staffing shortages, and the age make-up of admissions with hospital mortality rate seems like a reasonable assumption. If any of these three factors do influence hospital mortality, the effects aren't likely to manifest for days or maybe even a couple weeks. Further details on the data and calculations can be found in the [changelog](https://github.com/ercbk/Indiana-COVID-19-Tracker/blob/master/NEWS.md).  
 
-   * *Hospital Mortality Rate* is the ratio of deaths of hospitalized patients and unique hospital admissions. Each rate is calculated over a rolling, 14-day window.  
+   * *Hospital Mortality Rate* is the ratio of deaths of hospitalized COVID-19 patients and unique COVID-19 hospital admissions. Each rate is calculated over a rolling, 14-day window.  
    * *Hospitals with Staffing Shortages* is the percent of reporting hospitals that have reported staffing shortages for that day. That percentage is averaged over a rolling, seven day window.  
-   * *Hospital Admissions* is the daily total of unique individuals admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
-   * *Age Skewness in Admissions* is a measurement of the age makeup of the hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older that group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
+   * *Hospital Admissions* is the daily total of unique individuals that have tested positive for COVID-19 and been admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
+   * *Age Skewness in Admissions* is a measurement of the age makeup of the COVID-19 hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older that group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
    
 The latest data values for each variable are labeled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
 
