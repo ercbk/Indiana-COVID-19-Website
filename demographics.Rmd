@@ -513,7 +513,7 @@ gen_plots <- function(data, Name) {
    
    if (Name == "0 to 19") {
       g <- g + ggrepel::geom_label_repel(data = data %>% 
-                                            filter(end_date == as.Date("2020-08-11")),
+                                            filter(end_date == as.Date("2020-08-07")),
                                          aes(label = "School Starts"),
                                          fill = "black", color = "#fde725",
                                          point.padding = 2, label.size = 0.60,
