@@ -3,8 +3,8 @@ name: Evening Update
 on:
   repository_dispatch:
     types: [evening-update]
-  schedule:
-    - cron: '1 1 * * *'
+  #schedule:
+    #- cron: '1 1 * * *'
 
 
 jobs:
@@ -95,12 +95,6 @@ jobs:
           git commit -m "6:30pm charts update" || echo "No changes to commit"
           git push
       
-      #- name: Push changes
-        #uses: ad-m/github-push-action@master
-        #with:
-          # GITHUB_TOKEN automatically created
-          #github_token: ${{ secrets.GITHUB_TOKEN }}
-          #branch: 'gh-pages'
-      
       - name: Tweet evening update
         run: Rscript "tweet/tweet-evening-update.R"
+        
