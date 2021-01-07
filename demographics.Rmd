@@ -127,7 +127,7 @@ tests_axis = list(
 
 # "school starts" annotation is above this bar
 annot_y <- med_age_tbl %>% 
-   filter(end_date == "Aug 11") %>% 
+   filter(end_date == "Aug 08") %>% 
    pull(median_age)
 
 
@@ -496,14 +496,14 @@ gen_plots <- function(data, Name) {
       pull(num_breaks)
    
    # last point is only a complete week's worth of data for 1 out of 7 days. I don't want the trend line affected by it, so I'm removing it from the geom_smooth data.
-   line_data <- data %>% 
-      slice(-n())
+   # line_data <- data %>% 
+   #    slice(-n())
    
    g <- ggplot(data, aes(x = end_date, y = weekly_total)) + 
       geom_point_interactive(aes(tooltip = tooltip, data_id = tooltip),
                              color = "#99775c", size = 3) + 
       geom_smooth(
-         data = line_data,
+         # data = line_data,
          color = "#CC3D24FF",
          se = FALSE, method = "loess",
          span = 1.05, formula = 'y ~ x') +
