@@ -19,7 +19,7 @@ body {
 .section h1,
 .section h2 {
   font-family: 'Roboto', sans-serif;
-  padding-top: 3em !important; /*adding so much padding because theme adds a margin-top: -65px by default */
+  /* padding-top: 3em !important; /*adding so much padding because theme adds a margin-top: -65px by default */
   margin-bottom: 0.75em;
 }, 
 .section h3, 

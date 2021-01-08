@@ -512,10 +512,19 @@ hosp_react_tab <- reactable(
 
 hosp_react_tab
 
+```
 
 
+```{r echo=F, eval=F}
+
+div(
+   div("Local Hospital Capacity", style = "text-align: left; 
+                  background-color: #000; color: #fff; font-size:150%;
+                  padding: 15px"),
+   hosp_react_tab)
 
 ```
+
 
 \
 This table shows capacity measures and counts of COVID-19 patients for hospitals at the local level. HHS publishes this [dataset](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-facility) every Monday, and the latest data should cover the interval from the Friday two-weeks prior to the previous Thursday. For example, data published on December 21st will contain data from December 11th to December 17th. Given the weekly reporting schedule and the lag between the publishing and collection, I wouldn't recommend basing any personal actions solely on these data.  
