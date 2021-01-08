@@ -4,6 +4,22 @@ output:
             css: hospitals-style.css
 ---
 
+<!-- .tabset-pill style -->
+<style>
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #000000;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #ffffff;
+    background-color: #000000;
+}
+</style>
+
+## {.tabset .tabset-pills}
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
 
@@ -79,7 +95,7 @@ theme_hosp_msa <- hc_theme(
 
 
 
-## **State Hospital Mortality, Staffing Shortages, Admissions**
+### **State Hospital Mortality, Staffing Shortages, Admissions**
 
 ```{r state-msa-line, message=FALSE, echo=FALSE}
 state_msa_line <- highchart() %>%
@@ -102,9 +118,10 @@ state_msa_line <- highchart() %>%
                 showLastLabel = FALSE, relative = 1) %>%
    hc_add_series(name = 'Hospital Mortality Rate', data = mort_staff_admiss_skew_dat,
                  # increased lineWidth to highlight mort rate
-                 type = "line", lineWidth = 2.5,
+                 type = "areaspline", lineWidth = 2.5, 
                  hcaes(x = date, y = mean_mort_rate),
                  color = prismatic::clr_lighten("#a88814", shift = 0.3),
+                 fillColor = prismatic::clr_darken("#a88814", shift = 0.4), fillOpacity = 0.1,
                  # yAxis is the axis id (O indexed)
                  yAxis = 0, tooltip = list(stickOnContact = FALSE),
                  # states has various js-like effects type features
@@ -133,9 +150,9 @@ state_msa_line <- highchart() %>%
                 max = max(mort_staff_admiss_skew_dat$roll_mean_staff_short_perc) + 0.02,
                 tickAmount = 4, showLastLabel = FALSE, showFirstLabel = FALSE, relative = 1) %>%
    hc_add_series(name = 'Hospitals with Staffing Shortages', data = mort_staff_admiss_skew_dat,
-                 type = "line", hcaes(x = date, y = roll_mean_staff_short_perc), color = "#a8149e",
+                 type = "areaspline", hcaes(x = date, y = roll_mean_staff_short_perc),
+                 color = "#a8149e",
                  yAxis = 1, tooltip = list(stickOnContact = FALSE),
-                 
                  states = list(inactive = list(enabled = FALSE)),
                  lineWidth = 1, opacity = 1, marker = list(radius = 3),
                  dataLabels = list(
@@ -156,7 +173,7 @@ state_msa_line <- highchart() %>%
                 tickAmount = 6, gridLineWidth = 0, 
                 showLastLabel = FALSE, showFirstLabel = TRUE, relative = 1) %>% 
    hc_add_series(name = 'Hospital Admissions', data = mort_staff_admiss_skew_dat,
-                 type = "line", hcaes(x = date, y = roll_mean_admiss), color = '#1e14a8',
+                 type = "areaspline", hcaes(x = date, y = roll_mean_admiss), color = '#1e14a8',
                  yAxis = 2, tooltip = list(stickOnContact = FALSE),
                  states = list(inactive = list(enabled = FALSE)),
                  lineWidth = 1, opacity = 1, marker = list(radius = 2),
@@ -180,7 +197,7 @@ state_msa_line <- highchart() %>%
                 tickAmount = 4, gridLineWidth = 0, 
                 showLastLabel = FALSE, relative = 1) %>% 
    hc_add_series(name = 'Age Skewness in Admissions', data = mort_staff_admiss_skew_dat,
-                 type = "line", hcaes(x = date, y = skewness), color = '#6814a8',
+                 type = "areaspline", hcaes(x = date, y = skewness), color = '#6814a8',
                  yAxis = 3, tooltip = list(stickOnContact = FALSE),
                  states = list(inactive = list(enabled = FALSE)),
                  lineWidth = 1, opacity = 1, marker = list(radius = 2),
@@ -196,6 +213,10 @@ state_msa_line <- highchart() %>%
                     ),
                     y = -15)) %>% 
    
+   hc_exporting(enabled = TRUE) %>% 
+   hc_plotOptions(areaspline = list(
+      fillOpacity = 0.25
+   )) %>%
    # shared creates 1 tooltip box for all series and syncs them
    hc_tooltip(formatter = fntltp,
               shared = TRUE) %>% 
@@ -214,7 +235,7 @@ This chart shows Indiana's hospital mortality rate and unique hospital admission
    * *Hospital Admissions* is the daily total of unique individuals that have tested positive for COVID-19 and been admitted to a hospital on the that day. Those daily counts are averaged over a rolling, seven day window.  
    * *Age Skewness in Admissions* is a measurement of the age makeup of the COVID-19 hospital admissions data. It's calculated over a rolling, 14 day window (same as the hospital mortality rate). The larger the value, the older that group of admissions is on average. Between 0.5 and 1, the group of admissions is moderately skewed towards older individuals. Greater than 1, the group of admissions is highly skewed towards older individuals.   
    
-The latest data values for each variable are labeled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend.
+The latest data values for each variable are labeled. Panning across the chart will display values for all variables on that day. Each line series can be selected or de-selected by clicking on names in the legend. The menu button on the top right provides image and data download options and the ability to view fullscreen.
 
 \
 \
@@ -411,7 +432,7 @@ react_theme = reactableTheme(
 
 ```
 
-## **Local Hospital Capacity**
+### **Local Hospital Capacity**
 
 ```{r reactable, message=FALSE, echo=FALSE}
 

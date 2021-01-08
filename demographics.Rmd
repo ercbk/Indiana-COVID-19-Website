@@ -4,6 +4,23 @@ output:
       css: demographics-style.css
 ---
 
+<!-- .tabset-pill style -->
+<style>
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #000000;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #ffffff;
+    background-color: #000000;
+}
+</style>
+
+## {.tabset .tabset-pills}
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, out.width="100%", out.height="100%")
 
@@ -21,7 +38,9 @@ heat_bubble_data_date <- readr::read_rds(glue("{rprojroot::find_rstudio_root_fil
 
 ```
 
-## Median Age of Weekly COVID-19 Cases, Weekly Tests and Deaths
+
+
+### Median Age of Cases, Tests, Deaths
 
 ```{r age_bubble, echo=FALSE}
 
@@ -127,7 +146,7 @@ tests_axis = list(
 
 # "school starts" annotation is above this bar
 annot_y <- med_age_tbl %>% 
-   filter(end_date == "Aug 08") %>% 
+   filter(end_date == "Aug 22") %>% 
    pull(median_age)
 
 
@@ -142,7 +161,7 @@ age_bubble <- highchart() %>%
    # plotLine adds a vertical line and text normally, only used text to add data date
    hc_xAxis(categories = levels(med_age_tbl$end_date),
             plotLines = list(plotline_datadate),
-            labels = list(step = 2)) %>%
+            labels = list(step = 4)) %>%
    
    # phantom series, so I can get square legend symbols instead of circles
    hc_add_series(name = 'Median Age', type = "scatter", color = "#99875c",
@@ -182,7 +201,7 @@ age_bubble <- highchart() %>%
          # xAxis must be specified else x is in pixels
          labels = list(
             list(
-               point = list(x = 22, y = annot_y + 1, xAxis = 0, yAxis = 0),
+               point = list(x = 22, y = annot_y + 4, xAxis = 0, yAxis = 0),
                text = "<b>School Starts</b>",
                style = list(color = "black"),
                backgroundColor = "white"
@@ -191,6 +210,8 @@ age_bubble <- highchart() %>%
       )
    ) %>%  
    hc_tooltip(formatter = fntltp, shared = TRUE) %>%
+   # download opions; view fullscreen
+   hc_exporting(enabled = TRUE) %>% 
    hc_legend(bubbleLegend = list(enabled = TRUE,
                                  color = "#99875c",
                                  # min and max size of circles in legend
@@ -205,7 +226,7 @@ age_bubble <- highchart() %>%
                                     list(value = 500),
                                     list(value = 250),
                                     list(value = 100)))) %>% 
-   # hc_title(text = "Median Age of Weekly COVID-19 Cases") %>% 
+   hc_title(text = "Median Age of Weekly COVID-19 Cases, Weekly Tests and Deaths") %>%
    hc_caption(text = "Source: Indiana Data Hub") %>% 
    hc_add_theme(theme_med_age)
 
@@ -223,12 +244,12 @@ This chart shows the median age (left y-axis) of COVID-19 cases for a particular
   * If testing remains *high*, relatively *constant*, and the median age *rises*, then deaths are expected to *increase*.  
   * If testing is substantially *reduced or inconsistent* and the median age *rises*, then the behavior of the amount of deaths is more *uncertain*. The rise might be due to a lack of testing or may indicate viral spread from younger people to older ones.  
 
-Hovering over the bubbles shows the final date of the weekly interval, the median age, number of deaths, and number of tests for that week. The bar series or bubble series can selected by clicking on the opposite series in the legend.  
+Hovering over the bubbles shows the final date of the weekly interval, the median age, number of deaths, and number of tests for that week. The bar series or bubble series can selected by clicking on the opposite series in the legend. The menu button on the top right provides image and data download options and the ability to view fullscreen.  
 \
 \
 \
 
-## Weekly COVID-19 Cases by Age  
+### Cases by Age  
 
 
 ```{r age_heat, echo=FALSE}
@@ -239,7 +260,7 @@ caption_text <- "Sources: Indiana Data Hub, U.S. Census Bureau"
 # specifications for data date text
 plotline_datadate <- list(
    # position determined by number of cells along x axis
-   value = length(unique(heat_dat$end_date))-1, width = 2,
+   value = length(unique(heat_dat$end_date))-3, width = 2,
    label = list(
       text = data_date_text,
       verticalAlign = "top",
@@ -259,7 +280,7 @@ plotline_school_cases <- list(
       verticalAlign = "top",
       style = list(color = "#fde725",
                    fontSize = "14px"),
-      textAlign = "right",
+      textAlign = "center",
       rotation = 0,
       y = -50
    )
@@ -419,7 +440,8 @@ high_cases <- highchart() %>%
                    style = list(color = "#ffffff")
                 )) %>% 
    hc_tooltip(formatter = fntltp_cases) %>% 
-   # hc_title(text = "Weekly COVID-19 Cases by Age") %>%
+   hc_exporting(enabled = TRUE) %>% 
+   hc_title(text = "Weekly COVID-19 Cases by Age") %>%
    hc_subtitle(text = "cases") %>% 
    hc_add_theme(theme_cases)
 
@@ -443,6 +465,7 @@ high_cap <- highchart() %>%
                    style = list(color = "#ffffff")
                 )) %>% 
    hc_tooltip(formatter = fntltp_capita) %>%
+   hc_exporting(enabled = TRUE) %>% 
    hc_subtitle(text = "cases per 1000 residents per age group") %>% 
    hc_caption(text = caption_text) %>%
    hc_add_theme(theme_cap)
@@ -467,12 +490,12 @@ While raw totals can give us an idea about the age distribution of cases, it can
 
 Higher intensity cells in the scaled cases heatmap could indicate outbreaks in more age-consistent venues. On May 5th in the top heatmap, the cell for 80 and older is on the lower end of the intensity scale, and in the bottom heatmap, the intensity of that cell is in the upper third. An explanation for this difference could be that there were outbreaks at long term care facilities. A similar instance involving the 20-29 group might indicate bars or colleges as a hotspot.  
 
-Hovering over the cells shows the final date of the weekly interval, the age group, and weekly case total or weekly scaled case total.
+Hovering over the cells shows the final date of the weekly interval, the age group, and weekly case total or weekly scaled case total. The menu button on the top right provides image and data download options and the ability to view fullscreen.
 \
 \
 \
 
-## Weekly COVID-19 Deaths by Age Group
+### Deaths by Age
 
 ```{r age-deaths, echo=FALSE, warning=FALSE}
 
@@ -573,7 +596,7 @@ age_plots <- ind_age_clean %>%
 # use patchwork to facet them
 all_charts <- age_plots$plots[[1]] + age_plots$plots[[2]] + age_plots$plots[[3]] + age_plots$plots[[4]] + age_plots$plots[[5]] + age_plots$plots[[6]] + age_plots$plots[[7]] + age_plots$plots[[8]] +
    plot_annotation(
-         # title = "Weekly COVID-19 Deaths by Age Group",
+         title = "Weekly COVID-19 Deaths by Age Group",
          subtitle = glue("Data Date: {line_data_date}"),
          caption = "Source: Indiana Data Hub") &
    theme(plot.title = element_text(color = "white",
