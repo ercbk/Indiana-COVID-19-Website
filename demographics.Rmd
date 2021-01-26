@@ -529,7 +529,7 @@ gen_plots <- function(data, Name) {
          # data = line_data,
          color = "#CC3D24FF",
          se = FALSE, method = "loess",
-         span = 1.05, formula = 'y ~ x') +
+         span = 0.95, formula = 'y ~ x') +
       scale_y_continuous(breaks= scales::pretty_breaks(num_breaks)) +
       scale_x_date(position = "top") +
       labs(x = NULL, y = NULL, title = Name)
