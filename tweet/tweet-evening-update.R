@@ -46,8 +46,8 @@ png_files <- tibble::tibble(paths = fs::dir_ls(glue::glue("{rprojroot::find_rstu
    ungroup()
 
 
-random_pic <- sample(c(1,2,3,4,6,7,10,11,12,13,14,15,16,17), size = 1)
-fixed_pics <- c(5, 8, 9)
+random_pic <- sample(c(1,2,3,4,6,7,11,12,13,14,15,16,17,18), size = 1)
+fixed_pics <- c(5, 8, 10)
 lineup <- c(fixed_pics, random_pic)
 
 pngs <- png_files %>%
