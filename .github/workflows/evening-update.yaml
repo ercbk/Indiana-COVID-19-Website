@@ -1,11 +1,11 @@
 name: Evening Update
 
 on:
-  #repository_dispatch:
-    #types: [evening-update]
-  push:
-    branches:
-      - gh-pages
+  repository_dispatch:
+    types: [evening-update]
+  #push:
+    #branches:
+      #- gh-pages
 
 
 jobs:
