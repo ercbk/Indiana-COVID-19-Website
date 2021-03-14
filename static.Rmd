@@ -9,7 +9,9 @@ output:
 
 ```{r, setup, include=FALSE}
 
-knitr::opts_chunk$set(echo=FALSE, out.width="100%", out.height="100%")
+knitr::opts_chunk$set(echo=FALSE,
+                      out.width="100%",
+                      out.height="100%")
 
 library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
 
